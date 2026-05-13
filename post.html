@@ -148,16 +148,21 @@
 
   .article-shell{
     position:relative;z-index:1;
-    max-width:1400px;margin:0 auto;padding:24px 32px 60px;
+    max-width:1400px;margin:0 auto;padding:16px 32px 52px;
     display:grid;grid-template-columns:280px minmax(0,1fr);gap:32px;
+  }
+  .side-rail{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    align-self:stretch;
   }
   .side-panel{
     border:1px solid var(--line);
     background:rgba(13,13,31,.48);
     padding:24px;
     height:fit-content;
-    position:sticky;
-    top:86px;
   }
   .side-panel h3{
     margin:0 0 14px;
@@ -168,7 +173,28 @@
     text-transform:uppercase;
     font-weight:500;
   }
-  .side-panel + .side-panel{margin-top:18px}
+  .toc-anchor{
+    height:0;
+  }
+  .side-panel.toc-panel{
+    display:flex;
+    flex-direction:column;
+  }
+  .side-panel.toc-panel.is-fixed{
+    position:fixed;
+    top:var(--toc-fixed-top, 86px);
+    left:var(--toc-fixed-left, 32px);
+    width:var(--toc-fixed-width, 280px);
+    max-height:calc(100vh - 110px);
+    z-index:20;
+  }
+  .side-panel.toc-panel.is-bottom{
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:100%;
+    max-height:calc(100vh - 110px);
+  }
   .panel-text{
     font-family:"JetBrains Mono",monospace;
     font-size:12px;
@@ -193,16 +219,19 @@
   .tag-chip.g{color:var(--green);border-color:rgba(124,252,157,.4)}
   .toc-list{
     display:flex;flex-direction:column;gap:10px;
+    min-height:0;
+    overflow:auto;
+    padding-right:4px;
   }
   .toc-link{
     display:block;
     font-family:"JetBrains Mono",monospace;
-    font-size:11px;
-    line-height:1.6;
+    font-size:12px;
+    line-height:1.65;
     letter-spacing:.06em;
     text-decoration:none;
     color:var(--dim);
-    padding:6px 0 6px 12px;
+    padding:7px 0 7px 16px;
     border-left:1px solid var(--line);
     transition:.18s;
   }
@@ -212,8 +241,12 @@
     border-left-color:var(--cyan);
     transform:translateX(4px);
   }
-  .toc-link.level-3{padding-left:24px;font-size:10px}
-  .toc-link.level-4{padding-left:36px;font-size:10px}
+  .toc-link.level-1{padding-left:16px;font-size:13px}
+  .toc-link.level-2{padding-left:28px;font-size:12px}
+  .toc-link.level-3{padding-left:40px;font-size:11px}
+  .toc-link.level-4{padding-left:52px;font-size:11px}
+  .toc-link.level-5{padding-left:64px;font-size:10px}
+  .toc-link.level-6{padding-left:76px;font-size:10px}
   .toc-empty{
     font-family:"JetBrains Mono",monospace;
     font-size:12px;
@@ -223,7 +256,7 @@
   .article-card{
     border:1px solid var(--line);
     background:linear-gradient(180deg,rgba(13,13,31,.72),rgba(7,7,16,.58));
-    padding:36px 42px;
+    padding:28px 34px;
     position:relative;
   }
   .article-card::before{
@@ -234,26 +267,31 @@
   }
   .article-content{
     font-size:18px;
-    line-height:1.9;
+    line-height:1.76;
     color:#dddaf6;
   }
   .article-content h1,
   .article-content h2,
   .article-content h3,
-  .article-content h4{
+  .article-content h4,
+  .article-content h5,
+  .article-content h6{
     color:var(--ink);
     letter-spacing:-.02em;
     line-height:1.15;
-    margin:2.1em 0 .7em;
+    margin:1.55em 0 .5em;
     scroll-margin-top:110px;
   }
   .article-content h1{font-size:2.3em}
   .article-content h2{font-size:1.8em}
   .article-content h3{font-size:1.35em}
-  .article-content p{margin:1.1em 0}
+  .article-content h4{font-size:1.15em}
+  .article-content h5{font-size:1em}
+  .article-content h6{font-size:.92em;letter-spacing:.04em;text-transform:uppercase;color:#c8c6ea}
+  .article-content p{margin:.8em 0}
   .article-content ul,
-  .article-content ol{margin:1.2em 0;padding-left:1.5em}
-  .article-content li{margin:.55em 0}
+  .article-content ol{margin:.9em 0;padding-left:1.45em}
+  .article-content li{margin:.35em 0}
   .article-content a{color:var(--cyan);text-decoration:none}
   .article-content a:hover{color:var(--magenta)}
   .article-content strong{color:var(--ink)}
@@ -266,41 +304,71 @@
     border-radius:0;
   }
   .article-content pre{
-    margin:1.4em 0;
+    margin:1.05em 0;
     padding:0;
     overflow:auto;
     border:1px solid var(--line);
     background:#05050c;
     box-shadow:inset 0 0 0 1px rgba(0,240,255,.04);
+    scrollbar-width:thin;
+    scrollbar-color:rgba(0,240,255,.92) rgba(255,43,214,.14);
+  }
+  .article-content pre::-webkit-scrollbar{
+    width:12px;
+    height:12px;
+    background:#070714;
+  }
+  .article-content pre::-webkit-scrollbar-track{
+    background:
+      linear-gradient(180deg, rgba(255,43,214,.08), rgba(0,240,255,.08)),
+      #070714;
+    border-top:1px solid rgba(0,240,255,.14);
+    box-shadow:inset 0 0 0 1px rgba(255,43,214,.08);
+  }
+  .article-content pre::-webkit-scrollbar-thumb{
+    background:
+      linear-gradient(90deg, rgba(0,240,255,.92), rgba(255,43,214,.88));
+    border:2px solid #070714;
+    box-shadow:
+      0 0 12px rgba(0,240,255,.28),
+      0 0 18px rgba(255,43,214,.16);
+  }
+  .article-content pre::-webkit-scrollbar-thumb:hover{
+    background:
+      linear-gradient(90deg, rgba(124,252,157,.95), rgba(0,240,255,.95), rgba(255,43,214,.92));
+  }
+  .article-content pre::-webkit-scrollbar-corner{
+    background:#070714;
+    box-shadow:inset 0 0 0 1px rgba(0,240,255,.12);
   }
   .article-content pre code{
     display:block;
-    padding:18px 20px;
+    padding:16px 18px;
     border:0;
     background:none;
     font-size:.82em;
-    line-height:1.7;
+    line-height:1.62;
   }
   .article-content blockquote{
-    margin:1.4em 0;
-    padding:14px 18px;
+    margin:1em 0;
+    padding:12px 16px;
     border-left:3px solid var(--magenta);
     background:rgba(255,43,214,.05);
     color:#d9d4f6;
   }
   .article-content hr{
-    border:0;border-top:1px dashed var(--line);margin:2em 0;
+    border:0;border-top:1px dashed var(--line);margin:1.45em 0;
   }
   .article-content img{
     max-width:100%;
     border:1px solid var(--line);
     display:block;
-    margin:1.4em 0;
+    margin:1.05em 0;
   }
   .article-content table{
     width:100%;
     border-collapse:collapse;
-    margin:1.4em 0;
+    margin:1.05em 0;
     font-size:.95em;
   }
   .article-content th,
@@ -310,7 +378,7 @@
     text-align:left;
   }
   .article-content .katex-display{
-    margin:1.6em 0;
+    margin:1.2em 0;
     overflow-x:auto;
     overflow-y:hidden;
     padding:.35em 0;
@@ -431,11 +499,26 @@
   }
   @media (max-width:1100px){
     .hero-grid,.article-shell{grid-template-columns:1fr}
-    .side-panel{position:static}
+    .side-panel.toc-panel.is-fixed{
+      position:static;
+      left:auto;
+      width:auto;
+      max-height:none;
+      z-index:auto;
+    }
+    .side-panel.toc-panel.is-bottom{
+      position:static;
+      width:auto;
+      max-height:none;
+    }
+    .toc-list{
+      overflow:visible;
+      padding-right:0;
+    }
   }
   @media (max-width:640px){
     .topbar-inner,.page-head,.article-shell,.nearby{padding-left:18px;padding-right:18px}
-    .title-frame,.article-card{padding:24px 22px}
+    .title-frame,.article-card{padding:22px 20px}
     .nearby-grid{grid-template-columns:1fr}
     .nav a:nth-child(n+4){display:none}
   }
@@ -460,7 +543,7 @@
       <a href="index.html#contact">// COMMS</a>
     </nav>
     <div class="status">
-      <span><span class="pip">▲</span> <span id="time">--:--:--</span> UTC</span>
+      <span><span class="pip">▲</span> <span id="time">--:--:--</span> BJT</span>
       <span><span class="live">●</span> ONLINE</span>
     </div>
   </div>
@@ -490,7 +573,7 @@
 </section>
 
 <section class="article-shell">
-  <div>
+  <div class="side-rail">
     <div class="side-panel" data-cursor-frame>
       <h3>▌ tags</h3>
       <div class="tag-list" id="post-tags">
@@ -498,7 +581,8 @@
       </div>
     </div>
 
-    <div class="side-panel" data-cursor-frame>
+    <div class="toc-anchor" aria-hidden="true"></div>
+    <div class="side-panel toc-panel" data-cursor-frame>
       <h3>▌ sections</h3>
       <div class="toc-list" id="post-toc">
         <div class="toc-empty">等待正文生成目录...</div>
@@ -532,11 +616,17 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 <script>
+  const beijingTimeFormatter = new Intl.DateTimeFormat('zh-CN', {
+    timeZone: 'Asia/Shanghai',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
   function tick(){
-    const d = new Date();
-    const p = n => String(n).padStart(2,'0');
     const el = document.getElementById('time');
-    if(el) el.textContent = `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+    if(el) el.textContent = beijingTimeFormatter.format(new Date());
   }
   tick();setInterval(tick,1000);
 
@@ -544,7 +634,13 @@
   const tagChipClasses = ['c', 'm', 'y', 'g', ''];
   const postContentEl = document.getElementById('post-content');
   const tocEl = document.getElementById('post-toc');
+  const sideRailEl = document.querySelector('.side-rail');
+  const tocAnchorEl = document.querySelector('.toc-anchor');
+  const articleShellEl = document.querySelector('.article-shell');
+  const tocPanelEl = document.querySelector('.toc-panel');
+  const topbarEl = document.querySelector('.topbar');
   let activeTocLink = null;
+  let tocPanelState = 'normal';
 
   function escapeHtml(value){
     return String(value).replace(/[&<>"']/g, (char) => ({
@@ -604,8 +700,50 @@
     }
   }
 
+  function setTocPanelState(nextState){
+    if(!tocPanelEl || tocPanelState === nextState){
+      return;
+    }
+
+    tocPanelState = nextState;
+    tocPanelEl.classList.toggle('is-fixed', nextState === 'fixed');
+    tocPanelEl.classList.toggle('is-bottom', nextState === 'bottom');
+  }
+
+  function syncTocPanelPinning(){
+    if(!tocPanelEl || !articleShellEl || !sideRailEl || !tocAnchorEl){
+      return;
+    }
+
+    if(window.innerWidth <= 1100){
+      setTocPanelState('normal');
+      return;
+    }
+
+    const topOffset = (topbarEl ? topbarEl.offsetHeight : 86) + 8;
+    const anchorTop = tocAnchorEl.getBoundingClientRect().top;
+    const sideRailRect = sideRailEl.getBoundingClientRect();
+    const tocHeight = tocPanelEl.offsetHeight;
+
+    tocPanelEl.style.setProperty('--toc-fixed-top', `${topOffset}px`);
+    tocPanelEl.style.setProperty('--toc-fixed-left', `${Math.round(sideRailRect.left)}px`);
+    tocPanelEl.style.setProperty('--toc-fixed-width', `${Math.round(sideRailRect.width)}px`);
+
+    if(anchorTop > topOffset){
+      setTocPanelState('normal');
+      return;
+    }
+
+    if(sideRailRect.bottom <= topOffset + tocHeight){
+      setTocPanelState('bottom');
+      return;
+    }
+
+    setTocPanelState('fixed');
+  }
+
   function buildToc(){
-    const headings = Array.from(postContentEl.querySelectorAll('h2, h3, h4'));
+    const headings = Array.from(postContentEl.querySelectorAll('h1, h2, h3, h4, h5, h6'));
     const usedIds = new Set();
     const items = headings.map((heading, index) => {
       const text = heading.textContent.trim();
@@ -731,6 +869,7 @@
     postContentEl.innerHTML = post.contentHtml;
     await enhanceArticleContent();
     renderNeighbors(neighbors);
+    syncTocPanelPinning();
   }
 
   function renderError(message){
@@ -758,6 +897,10 @@
     const payload = await response.json();
     await renderPost(payload);
   }
+
+  window.addEventListener('scroll', syncTocPanelPinning, { passive: true });
+  window.addEventListener('resize', syncTocPanelPinning);
+  syncTocPanelPinning();
 
   loadPost().catch(() => {
     renderError('读取正文失败，请确认 Worker 本地预览已启动，或 Cloudflare 部署已完成。');

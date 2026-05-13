@@ -22,7 +22,8 @@
       y: window.innerHeight / 2,
       visible: false,
       frameTarget: null,
-      rafId: 0
+      rafId: 0,
+      frameRafId: 0
     };
 
     function renderCross() {
@@ -44,6 +45,29 @@
       cross.style.opacity = state.visible ? "1" : "0";
     }
 
+    function stopFrameTracking() {
+      if (state.frameRafId) {
+        window.cancelAnimationFrame(state.frameRafId);
+        state.frameRafId = 0;
+      }
+    }
+
+    function trackFrame() {
+      if (!state.frameTarget) {
+        state.frameRafId = 0;
+        return;
+      }
+
+      renderFrame();
+      state.frameRafId = window.requestAnimationFrame(trackFrame);
+    }
+
+    function ensureFrameTracking() {
+      if (!state.frameRafId) {
+        state.frameRafId = window.requestAnimationFrame(trackFrame);
+      }
+    }
+
     function flush() {
       state.rafId = 0;
       renderCross();
@@ -61,6 +85,13 @@
       }
 
       state.frameTarget = nextTarget;
+      if (state.frameTarget) {
+        renderFrame();
+        ensureFrameTracking();
+        return;
+      }
+
+      stopFrameTracking();
       renderFrame();
     }
 
@@ -80,6 +111,7 @@
     document.addEventListener("pointerleave", () => {
       state.visible = false;
       state.frameTarget = null;
+      stopFrameTracking();
       cross.style.opacity = "0";
       frame.style.opacity = "0";
     });

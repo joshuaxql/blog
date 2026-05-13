@@ -354,7 +354,7 @@
       <a href="#contact">// COMMS</a>
     </nav>
     <div class="status">
-      <span><span class="pip">▲</span> <span id="time">--:--:--</span> UTC</span>
+      <span><span class="pip">▲</span> <span id="time">--:--:--</span> BJT</span>
       <span><span class="live">●</span> ONLINE</span>
     </div>
   </div>
@@ -386,12 +386,11 @@
 
     <div class="hero-sub">
       <span class="kw">&gt;</span> <span class="km">whoami</span><br/>
-      &nbsp;&nbsp;&nbsp;一名常驻终端的工程师 / 喜欢在凌晨三点给 <span class="ky">kernel</span> 写情书的家伙。<br/>
+      &nbsp;&nbsp;&nbsp;我是一个 <span class="ky">宽客</span> 加 <span class="ky">极客</span>。<br/>
       <span class="kw">&gt;</span> <span class="km">mission</span><br/>
-      &nbsp;&nbsp;&nbsp;把那些被埋在 <span class="ky">stack trace</span> 里的知识，翻译成
-      <span class="kw">人话</span>。<br/>
+      &nbsp;&nbsp;&nbsp;把量化研究、系统实践和技术记录，整理成能复用的内容。<br/>
       <span class="kw">&gt;</span> <span class="km">topics</span><br/>
-      &nbsp;&nbsp;&nbsp;<span id="hero-topics">等待 blog/*.md 数据接入...</span><span class="cursor"></span>
+      &nbsp;&nbsp;&nbsp;<span id="hero-topics">Python / Linux / SQL / PyTorch</span><span class="cursor"></span>
     </div>
 
     <div class="hero-actions">
@@ -425,23 +424,15 @@
     <div class="panel" data-cursor-frame>
       <h3>▌ readme.txt</h3>
       <div class="about-body">
-        <p>你好。这里是 <strong>joshuaxql</strong>——一个被指向空地址的我，
-          在这个被算法切片、被订阅劫持的时代，试图建一座没有推荐流的灯塔。</p>
-        <p>白天我写后端、调网络、和 <em>distributed system</em> 周旋；夜晚我把白天踩到的坑，
-          一行一行变成可以重放的文字。<strong>这里没有标题党，只有可执行的真诚。</strong></p>
-        <p>如果你曾在凌晨被一个 <em>segfault</em> 折磨过，被一篇过时的中文翻译文档误导过，
-          或者只是单纯想看一个工程师怎么思考——欢迎留下，<em>不要 ctrl+W</em>。</p>
+        <p>你好。这里是 <strong>joshuaxql</strong>。我是一个宽客加极客，主要用代码做研究、实验和实现。</p>
+        <p>我的技术栈以 <em>Python</em>、<em>Linux</em>、<em>SQL</em>、<em>PyTorch</em> 为主，
+          这里会记录和它们相关的实践、配置、思考和博客内容。</p>
+        <p><strong>这个主页不讲虚的介绍，核心就是我在做什么，以及我平时真正使用什么。</strong></p>
         <div class="stack">
-          <span class="chip c">Rust</span>
-          <span class="chip c">Go</span>
-          <span class="chip m">TypeScript</span>
-          <span class="chip m">WASM</span>
-          <span class="chip y">Linux Kernel</span>
-          <span class="chip y">eBPF</span>
-          <span class="chip">PostgreSQL</span>
-          <span class="chip">Distributed Sys.</span>
-          <span class="chip">Compilers</span>
-          <span class="chip">Networking</span>
+          <span class="chip c">Python</span>
+          <span class="chip c">Linux</span>
+          <span class="chip m">SQL</span>
+          <span class="chip y">PyTorch</span>
         </div>
       </div>
     </div>
@@ -512,11 +503,17 @@
 <script src="cursor.js"></script>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // 实时时钟
+  const beijingTimeFormatter = new Intl.DateTimeFormat('zh-CN', {
+    timeZone: 'Asia/Shanghai',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
   function tick(){
-    const d = new Date();
-    const p = n => String(n).padStart(2,'0');
     const el = document.getElementById('time');
-    if(el) el.textContent = `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+    if(el) el.textContent = beijingTimeFormatter.format(new Date());
   }
   tick();setInterval(tick,1000);
 
@@ -588,7 +585,7 @@
       <span class="sep">┃</span>
       <span>LATEST: ${escapeHtml(stats.latestPostTitle)}</span>
     `;
-    document.getElementById('hero-topics').textContent = topics;
+    document.getElementById('hero-topics').textContent = 'Python / Linux / SQL / PyTorch';
     document.getElementById('hero-posts').textContent = numberFmt.format(stats.totalPosts);
     document.getElementById('hero-words').textContent = stats.totalWordsLabel;
     document.getElementById('hero-read').textContent = `${numberFmt.format(stats.totalReadMinutes)} MIN`;

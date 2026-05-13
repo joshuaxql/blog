@@ -46,11 +46,7 @@ body.cursor-ready *{
 .cursor-frame{
   border:1px solid rgba(0,240,255,.96);
   box-shadow:0 0 0 1px rgba(0,240,255,.14), 0 0 28px rgba(0,240,255,.12);
-  transition:
-    opacity .12s ease,
-    transform .14s ease,
-    width .14s ease,
-    height .14s ease;
+  transition:opacity .12s ease;
 }
 
 .cursor-frame::before,

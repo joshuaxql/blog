@@ -282,7 +282,7 @@
       <a href="index.html#contact">// COMMS</a>
     </nav>
     <div class="status">
-      <span><span class="pip">▲</span> <span id="time">--:--:--</span> UTC</span>
+      <span><span class="pip">▲</span> <span id="time">--:--:--</span> BJT</span>
       <span><span class="live">●</span> ONLINE</span>
     </div>
   </div>
@@ -344,10 +344,17 @@
 <script src="cursor.js"></script>
 <script>
   // 时钟
+  const beijingTimeFormatter = new Intl.DateTimeFormat('zh-CN', {
+    timeZone: 'Asia/Shanghai',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
   function tick(){
-    const d=new Date(),p=n=>String(n).padStart(2,'0');
     const el=document.getElementById('time');
-    if(el) el.textContent=`${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+    if(el) el.textContent=beijingTimeFormatter.format(new Date());
   }
   tick();setInterval(tick,1000);
 
