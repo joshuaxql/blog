@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>joshuaxql // 主页</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Major+Mono+Display&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#070710;
+    --bg-2:#0d0d1f;
+    --ink:#e9e9ff;
+    --dim:#7a7aa3;
+    --line:#1a1a35;
+    --cyan:#00f0ff;
+    --magenta:#ff2bd6;
+    --yellow:#f5ff3d;
+    --green:#7CFC9D;
+    --red:#ff3860;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Space Grotesk",sans-serif;overflow-x:hidden}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,43,214,.15), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(0,240,255,.12), transparent 60%),
+      radial-gradient(800px 400px at 50% 110%, rgba(245,255,61,.08), transparent 60%),
+      var(--bg);
+    min-height:100vh;
+  }
+  /* ─────────── 背景网格 + 扫描线 ─────────── */
+  .grid-bg{
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(0,240,255,.06) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,240,255,.06) 1px,transparent 1px);
+    background-size:60px 60px;
+    mask-image:radial-gradient(ellipse at 50% 30%,black 0%,transparent 80%);
+  }
+  .scanlines{
+    position:fixed;inset:0;pointer-events:none;z-index:2;
+    background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0px,rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px);
+    mix-blend-mode:overlay;
+  }
+  .noise{
+    position:fixed;inset:0;pointer-events:none;z-index:3;opacity:.06;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+  }
+
+  /* ─────────── 顶栏 ─────────── */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(8px);
+    background:linear-gradient(180deg,rgba(7,7,16,.85),rgba(7,7,16,.4));
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:1400px;margin:0 auto;padding:14px 32px;
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
+    font-family:"JetBrains Mono",monospace;font-size:13px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.06em}
+  .brand .dot{width:10px;height:10px;background:var(--green);border-radius:1px;box-shadow:0 0 12px var(--green);animation:blink 1.4s steps(2) infinite}
+  @keyframes blink{50%{opacity:.2}}
+  .brand b{color:var(--cyan)}
+  .brand s{color:var(--magenta);text-decoration:none}
+  .nav{display:flex;gap:6px;align-items:center}
+  .nav a{
+    color:var(--dim);text-decoration:none;padding:8px 14px;border:1px solid transparent;
+    text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:500;
+    transition:.2s;
+  }
+  .nav a:hover{color:var(--ink);border-color:var(--cyan);box-shadow:inset 0 0 0 1px var(--cyan),0 0 12px rgba(0,240,255,.3)}
+  .nav a.active{color:var(--bg);background:var(--cyan)}
+  .status{display:flex;align-items:center;gap:14px;color:var(--dim)}
+  .status .pip{color:var(--cyan)}
+  .status .live{color:var(--green)}
+
+  /* ─────────── HERO ─────────── */
+  .hero{
+    position:relative;z-index:1;
+    max-width:1400px;margin:0 auto;padding:80px 32px 60px;
+  }
+  .hero-frame{
+    position:relative;
+    border:1px solid var(--line);
+    padding:48px 56px 56px;
+    background:linear-gradient(180deg,rgba(13,13,31,.6),rgba(7,7,16,.2));
+    clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,28px 100%,0 calc(100% - 28px));
+  }
+  .hero-frame::before{
+    content:"";position:absolute;left:-1px;top:-1px;right:-1px;bottom:-1px;
+    background:linear-gradient(135deg,var(--cyan),transparent 30%,transparent 70%,var(--magenta));
+    z-index:-1;
+    clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,28px 100%,0 calc(100% - 28px));
+  }
+  .corner{
+    position:absolute;width:18px;height:18px;border:2px solid var(--cyan);
+  }
+  .corner.tl{top:10px;left:10px;border-right:0;border-bottom:0}
+  .corner.tr{top:10px;right:38px;border-left:0;border-bottom:0;border-color:var(--magenta)}
+  .corner.bl{bottom:38px;left:10px;border-right:0;border-top:0;border-color:var(--magenta)}
+  .corner.br{bottom:10px;right:10px;border-left:0;border-top:0}
+
+  .hero-meta{
+    display:flex;gap:18px;font-family:"JetBrains Mono",monospace;font-size:11px;
+    text-transform:uppercase;letter-spacing:.2em;color:var(--dim);margin-bottom:36px;
+  }
+  .hero-meta span:first-child{color:var(--cyan)}
+  .hero-meta .sep{color:var(--line)}
+
+  .hero h1{
+    font-family:"Space Grotesk",sans-serif;
+    font-size:clamp(48px,8vw,128px);
+    line-height:.92;letter-spacing:-.03em;font-weight:700;
+    margin:0 0 8px;color:var(--ink);
+    text-wrap:balance;
+  }
+  .hero h1 .glitch{
+    position:relative;display:inline-block;color:var(--ink);
+  }
+  .hero h1 .glitch::before,.hero h1 .glitch::after{
+    content:attr(data-text);position:absolute;inset:0;
+  }
+  .hero h1 .glitch::before{color:var(--magenta);transform:translate(-3px,0);mix-blend-mode:screen;opacity:.85;animation:gl1 4s infinite}
+  .hero h1 .glitch::after{color:var(--cyan);transform:translate(3px,0);mix-blend-mode:screen;opacity:.85;animation:gl2 4.5s infinite}
+  @keyframes gl1{0%,90%,100%{transform:translate(-3px,0)}92%{transform:translate(-6px,2px)}94%{transform:translate(2px,-1px)}}
+  @keyframes gl2{0%,90%,100%{transform:translate(3px,0)}92%{transform:translate(6px,-2px)}94%{transform:translate(-2px,1px)}}
+
+  .hero h1 .accent{color:var(--cyan);font-family:"Major Mono Display",monospace;font-weight:400;font-style:normal}
+  .hero h1 .strike{position:relative;display:inline-block}
+  .hero h1 .strike::after{content:"";position:absolute;left:-4%;right:-4%;top:55%;height:6px;background:var(--magenta);transform:skewY(-3deg)}
+
+  .hero-sub{
+    font-family:"JetBrains Mono",monospace;font-size:14px;color:var(--dim);
+    margin-top:28px;max-width:780px;line-height:1.7;
+  }
+  .hero-sub .kw{color:var(--cyan)}
+  .hero-sub .km{color:var(--magenta)}
+  .hero-sub .ky{color:var(--yellow)}
+  .cursor{display:inline-block;width:9px;height:16px;background:var(--cyan);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(2) infinite}
+
+  .hero-actions{display:flex;gap:14px;margin-top:38px;flex-wrap:wrap}
+  .btn{
+    font-family:"JetBrains Mono",monospace;font-size:12px;
+    text-transform:uppercase;letter-spacing:.18em;font-weight:600;
+    padding:14px 22px;text-decoration:none;color:var(--bg);background:var(--cyan);
+    border:0;cursor:pointer;display:inline-flex;align-items:center;gap:10px;
+    clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+    transition:.2s;position:relative;
+  }
+  .btn:hover{background:var(--ink);transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--magenta)}
+  .btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--dim)}
+  .btn.ghost:hover{color:var(--magenta);box-shadow:inset 0 0 0 1px var(--magenta),6px 6px 0 var(--cyan)}
+  .btn .arrow{transition:.2s}
+  .btn:hover .arrow{transform:translateX(4px)}
+
+  /* ─────────── 侧边数据 ─────────── */
+  .hero-stats{
+    position:absolute;right:56px;bottom:56px;
+    font-family:"JetBrains Mono",monospace;font-size:11px;
+    text-align:right;color:var(--dim);line-height:1.9;
+  }
+  .hero-stats .v{color:var(--ink)}
+  .hero-stats .g{color:var(--green)}
+
+  /* ─────────── ABOUT 区块 ─────────── */
+  section{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:60px 32px}
+  .section-head{
+    display:flex;align-items:baseline;gap:16px;margin-bottom:36px;
+    font-family:"JetBrains Mono",monospace;
+  }
+  .section-head .num{color:var(--magenta);font-size:14px;letter-spacing:.2em}
+  .section-head h2{
+    font-family:"Space Grotesk",sans-serif;font-size:42px;font-weight:600;letter-spacing:-.02em;
+    margin:0;color:var(--ink);
+  }
+  .section-head .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--magenta),transparent)}
+  .section-head .tag{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.2em}
+
+  .about-grid{
+    display:grid;grid-template-columns:1.1fr .9fr;gap:32px;
+  }
+  .panel{
+    border:1px solid var(--line);background:rgba(13,13,31,.5);
+    padding:28px 32px;position:relative;
+  }
+  .panel::before{
+    content:"";position:absolute;left:0;top:0;width:36px;height:1px;background:var(--cyan);
+  }
+  .panel::after{
+    content:"";position:absolute;right:0;bottom:0;width:36px;height:1px;background:var(--magenta);
+  }
+  .panel h3{
+    font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500;
+    text-transform:uppercase;letter-spacing:.25em;color:var(--cyan);margin:0 0 18px;
+  }
+  .panel.magenta h3{color:var(--magenta)}
+  .about-body{font-size:17px;line-height:1.75;color:#cccce6}
+  .about-body p{margin:0 0 18px}
+  .about-body strong{color:var(--ink);background:linear-gradient(transparent 60%,rgba(255,43,214,.3) 60%)}
+  .about-body em{color:var(--cyan);font-style:normal;font-family:"JetBrains Mono",monospace;font-size:.94em}
+
+  /* terminal panel */
+  .term{
+    font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.75;
+  }
+  .term .prompt{color:var(--green)}
+  .term .path{color:var(--cyan)}
+  .term .out{color:var(--ink)}
+  .term .dim{color:var(--dim)}
+  .term .ok{color:var(--green)}
+  .term .err{color:var(--red)}
+  .term .ky{color:var(--yellow)}
+  .term .km{color:var(--magenta)}
+
+  /* stack chips */
+  .stack{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .chip{
+    font-family:"JetBrains Mono",monospace;font-size:10px;
+    text-transform:uppercase;letter-spacing:.15em;
+    padding:6px 10px;border:1px solid var(--line);color:var(--dim);
+    background:rgba(0,240,255,.04);
+  }
+  .chip.c{color:var(--cyan);border-color:rgba(0,240,255,.4)}
+  .chip.m{color:var(--magenta);border-color:rgba(255,43,214,.4)}
+  .chip.y{color:var(--yellow);border-color:rgba(245,255,61,.4)}
+
+  /* ─────────── 近期文章 ─────────── */
+  .posts{
+    display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px;
+  }
+  .post{
+    position:relative;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(13,13,31,.7),rgba(7,7,16,.5));
+    padding:28px;text-decoration:none;color:var(--ink);
+    display:flex;flex-direction:column;gap:14px;
+    transition:.2s;overflow:hidden;
+    min-height:280px;
+  }
+  .post::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cyan);
+    transform:scaleY(0);transform-origin:top;transition:.3s;
+  }
+  .post:hover::before{transform:scaleY(1)}
+  .post:hover{border-color:var(--cyan);transform:translateY(-4px)}
+  .post.featured{
+    grid-row:span 2;background:
+      radial-gradient(600px 300px at 80% 0%, rgba(0,240,255,.15),transparent 60%),
+      linear-gradient(180deg,rgba(13,13,31,.7),rgba(7,7,16,.5));
+    border-color:rgba(0,240,255,.3);
+  }
+  .post-meta{
+    display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;
+    font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:var(--dim);
+  }
+  .post-meta .cat{color:var(--magenta)}
+  .post.featured .post-meta .cat{color:var(--yellow)}
+  .post h4{
+    font-family:"Space Grotesk",sans-serif;font-size:22px;font-weight:600;
+    line-height:1.25;margin:0;color:var(--ink);letter-spacing:-.01em;
+  }
+  .post.featured h4{font-size:36px;line-height:1.1}
+  .post p{
+    margin:0;color:var(--dim);font-size:14px;line-height:1.6;
+  }
+  .post .read{
+    margin-top:auto;font-family:"JetBrains Mono",monospace;font-size:11px;
+    color:var(--cyan);letter-spacing:.15em;text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;
+  }
+  .post .read .arr{transition:.2s}
+  .post:hover .read .arr{transform:translateX(6px)}
+
+  .post-id{
+    position:absolute;top:14px;right:18px;
+    font-family:"Major Mono Display",monospace;color:var(--line);font-size:42px;
+    transition:.2s;
+  }
+  .post:hover .post-id{color:var(--magenta)}
+  .post.featured .post-id{color:rgba(0,240,255,.15);font-size:80px;top:8px;right:24px}
+
+  .post .ascii{
+    font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--cyan);
+    opacity:.5;line-height:1.1;white-space:pre;margin:6px 0;
+  }
+  .post.featured .ascii{opacity:.7}
+
+  .posts-foot{
+    margin-top:32px;display:flex;justify-content:space-between;align-items:center;
+    font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--dim);
+    padding-top:24px;border-top:1px dashed var(--line);
+  }
+  .posts-foot a{color:var(--cyan);text-decoration:none;letter-spacing:.15em;text-transform:uppercase;font-weight:600}
+  .posts-foot a:hover{color:var(--magenta)}
+  .posts-empty{
+    grid-column:1 / -1;
+    border:1px dashed var(--line);
+    padding:28px;
+    font-family:"JetBrains Mono",monospace;
+    color:var(--dim);
+    background:rgba(13,13,31,.45);
+  }
+
+  /* ─────────── 页脚 ─────────── */
+  footer{
+    position:relative;z-index:1;border-top:1px solid var(--line);
+    margin-top:80px;padding:48px 32px 36px;background:rgba(7,7,16,.6);
+  }
+  .foot-inner{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .foot-inner .col{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--dim);line-height:2}
+  .foot-inner .col b{color:var(--cyan);font-weight:500;letter-spacing:.2em;text-transform:uppercase;display:block;margin-bottom:8px;font-size:10px}
+  .foot-inner a{color:var(--dim);text-decoration:none}
+  .foot-inner a:hover{color:var(--magenta)}
+  .copy{margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--line);text-align:center}
+
+  @media (max-width:1024px){
+    .about-grid{grid-template-columns:1fr}
+    .posts{grid-template-columns:1fr 1fr}
+    .post.featured{grid-row:auto;grid-column:span 2}
+    .hero-stats{position:static;text-align:left;margin-top:36px}
+    .nav a:nth-child(n+4){display:none}
+  }
+  @media (max-width:640px){
+    .hero{padding:40px 18px}
+    .hero-frame{padding:28px 22px}
+    section{padding:40px 18px}
+    .posts{grid-template-columns:1fr}
+    .post.featured{grid-column:auto}
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="scanlines"></div>
+<div class="noise"></div>
+
+<!-- ─────────── TOPBAR ─────────── -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="dot"></span>
+      <span>joshuaxql<span style="color:var(--dim)">.log</span></span>
+    </div>
+    <nav class="nav">
+      <a href="index.html" class="active">// HOME</a>
+      <a href="blog.html">// ARCHIVE</a>
+      <a href="#about">// ABOUT</a>
+      <a href="#feed">// FEED</a>
+      <a href="#contact">// COMMS</a>
+    </nav>
+    <div class="status">
+      <span><span class="pip">▲</span> <span id="time">--:--:--</span> UTC</span>
+      <span><span class="live">●</span> ONLINE</span>
+    </div>
+  </div>
+</header>
+
+<!-- ─────────── HERO ─────────── -->
+<section class="hero">
+  <div class="hero-frame">
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
+
+    <div class="hero-meta" id="hero-meta">
+      <span>SYS.LOG // --</span>
+      <span class="sep">┃</span>
+      <span>POSTS: --</span>
+      <span class="sep">┃</span>
+      <span>WORDS: --</span>
+      <span class="sep">┃</span>
+      <span>LATEST: --</span>
+    </div>
+
+    <h1>
+      我把<span class="accent">bug</span>写成<br/>
+      <span class="glitch" data-text="诗">诗</span>，把<span class="strike">代码</span>
+      <br/>写成<span class="accent" style="color:var(--magenta)">武器</span>。
+    </h1>
+
+    <div class="hero-sub">
+      <span class="kw">&gt;</span> <span class="km">whoami</span><br/>
+      &nbsp;&nbsp;&nbsp;一名常驻终端的工程师 / 喜欢在凌晨三点给 <span class="ky">kernel</span> 写情书的家伙。<br/>
+      <span class="kw">&gt;</span> <span class="km">mission</span><br/>
+      &nbsp;&nbsp;&nbsp;把那些被埋在 <span class="ky">stack trace</span> 里的知识，翻译成
+      <span class="kw">人话</span>。<br/>
+      <span class="kw">&gt;</span> <span class="km">topics</span><br/>
+      &nbsp;&nbsp;&nbsp;<span id="hero-topics">等待 blog/*.md 数据接入...</span><span class="cursor"></span>
+    </div>
+
+    <div class="hero-actions">
+      <a class="btn" href="blog.html">
+        进入档案库 <span class="arrow">→</span>
+      </a>
+      <a class="btn ghost" href="#feed">
+        最近的文章 <span class="arrow">↓</span>
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div>POSTS / <span class="v" id="hero-posts">0</span></div>
+      <div>WORDS / <span class="v" id="hero-words">0</span></div>
+      <div>READ / <span class="g" id="hero-read">0 MIN</span></div>
+      <div>TAGS / <span class="v" id="hero-tags">0</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ABOUT ─────────── -->
+<section id="about">
+  <div class="section-head">
+    <span class="num">// 001</span>
+    <h2>身份认证 <span style="color:var(--dim);font-weight:300">/ identity</span></h2>
+    <span class="rule"></span>
+    <span class="tag">about.md</span>
+  </div>
+
+  <div class="about-grid">
+    <div class="panel">
+      <h3>▌ readme.txt</h3>
+      <div class="about-body">
+        <p>你好。这里是 <strong>joshuaxql</strong>——一个被指向空地址的我，
+          在这个被算法切片、被订阅劫持的时代，试图建一座没有推荐流的灯塔。</p>
+        <p>白天我写后端、调网络、和 <em>distributed system</em> 周旋；夜晚我把白天踩到的坑，
+          一行一行变成可以重放的文字。<strong>这里没有标题党，只有可执行的真诚。</strong></p>
+        <p>如果你曾在凌晨被一个 <em>segfault</em> 折磨过，被一篇过时的中文翻译文档误导过，
+          或者只是单纯想看一个工程师怎么思考——欢迎留下，<em>不要 ctrl+W</em>。</p>
+        <div class="stack">
+          <span class="chip c">Rust</span>
+          <span class="chip c">Go</span>
+          <span class="chip m">TypeScript</span>
+          <span class="chip m">WASM</span>
+          <span class="chip y">Linux Kernel</span>
+          <span class="chip y">eBPF</span>
+          <span class="chip">PostgreSQL</span>
+          <span class="chip">Distributed Sys.</span>
+          <span class="chip">Compilers</span>
+          <span class="chip">Networking</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel magenta">
+      <h3>▌ ./manifest --verbose</h3>
+      <div class="term">
+        <div><span class="prompt">root@joshuaxql</span>:<span class="path">~/why</span>$ cat .manifesto</div>
+        <div class="dim">────────────────────────────</div>
+        <div><span class="km">[01]</span> <span class="out">写给三年后自己看的，</span><span class="dim">而不是写给算法。</span></div>
+        <div><span class="km">[02]</span> <span class="out">每一行示例代码都跑过，</span><span class="ok">return 0;</span></div>
+        <div><span class="km">[03]</span> <span class="out">不藏私 API key，</span><span class="dim">也不藏私观点。</span></div>
+        <div><span class="km">[04]</span> <span class="out">承认</span> <span class="err">"我也不知道"</span> <span class="out">比假装懂更酷。</span></div>
+        <div><span class="km">[05]</span> <span class="out">技术不中立，</span><span class="ky">但它该被解释清楚。</span></div>
+        <div class="dim">────────────────────────────</div>
+        <div><span class="prompt">root@joshuaxql</span>:<span class="path">~/why</span>$ <span class="ok">build --release</span></div>
+        <div><span class="dim">Compiling identity v4.0.1 ...</span></div>
+        <div><span class="ok">    Finished</span> <span class="dim">in 0.42s</span></div>
+        <div><span class="prompt">root@joshuaxql</span>:<span class="path">~/why</span>$ <span class="ky">_</span><span class="cursor" style="background:var(--yellow)"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── 近期博客 ─────────── -->
+<section id="feed">
+  <div class="section-head">
+    <span class="num">// 002</span>
+    <h2>近期传输 <span style="color:var(--dim);font-weight:300">/ recent broadcasts</span></h2>
+    <span class="rule"></span>
+    <span class="tag" id="feed-tag">0 of 0 logs</span>
+  </div>
+
+  <div class="posts" id="posts-list">
+    <div class="posts-empty">正在从 `blog/*.md` 读取文章...</div>
+  </div>
+
+  <div class="posts-foot">
+    <span id="feed-count-label">显示 0 / 0 条记录 — 数据流准备中...</span>
+    <a href="blog.html">浏览完整档案库 ━━▶</a>
+  </div>
+</section>
+
+<!-- ─────────── FOOTER ─────────── -->
+<footer id="contact">
+  <div class="foot-inner">
+    <div class="col">
+      <b>// node</b>
+      joshuaxql.log<br/>
+      v4.0.1 — stable<br/>
+      built with caffeine
+    </div>
+    <div class="col">
+      <b>// channels</b>
+      <a href="https://github.com/joshuaxql">github / joshuaxql</a><br/>
+      <a href="mailto:qiuleiustc@mail.ustc.edu.cn">mail / qiuleiustc@mail.ustc.edu.cn</a>
+    </div>
+    <div class="col" style="text-align:right">
+      <b>// signal</b>
+      <span style="color:var(--green)">● </span>broadcasting<br/>
+      latency 12ms<br/>
+      since 2022
+    </div>
+  </div>
+  <div class="copy">// © 2026 joshuaxql — no cookies, no trackers, just thoughts ─━─━─━─</div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // 实时时钟
+  function tick(){
+    const d = new Date();
+    const p = n => String(n).padStart(2,'0');
+    const el = document.getElementById('time');
+    if(el) el.textContent = `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+  }
+  tick();setInterval(tick,1000);
+
+  const numberFmt = new Intl.NumberFormat('en-US');
+
+  function escapeHtml(value){
+    return String(value).replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char]));
+  }
+
+  function padIndex(index){
+    return String(index).padStart(3, '0');
+  }
+
+  function buildAscii(post){
+    const tags = post.tags.length ? post.tags.join(' | ') : '未分类';
+    return [
+      `[${post.slug}] ─────────────`,
+      `tags: ${tags}`,
+      `words: ${numberFmt.format(post.wordCount)} · read: ${post.readMinutes} min`
+    ].join('\n');
+  }
+
+  function renderPostCard(post, index){
+    const href = `post.html?slug=${encodeURIComponent(post.slug)}`;
+    const featured = index === 0;
+    const dateMeta = featured ? `${post.dateLabel} · ${post.readMinutes} MIN READ` : `${post.monthDay} · ${post.readMinutes} MIN`;
+    return `
+      <a class="post${featured ? ' featured' : ''}" href="${href}">
+        <span class="post-id">${padIndex(index + 1)}</span>
+        <div class="post-meta">
+          <span class="cat">// ${escapeHtml(post.primaryTag.toUpperCase())}</span>
+          <span>${escapeHtml(dateMeta)}</span>
+        </div>
+        <h4>${escapeHtml(post.title)}</h4>
+        ${featured ? `<div class="ascii">${escapeHtml(buildAscii(post))}</div>` : ''}
+        <p>${escapeHtml(post.summary)}</p>
+        <span class="read">${featured ? 'READ TRANSMISSION' : 'OPEN'} <span class="arr">${featured ? '━━▶' : '▶'}</span></span>
+      </a>
+    `;
+  }
+
+  async function loadHomeData(){
+    const response = await fetch('/api/posts');
+    if(!response.ok){
+      throw new Error('failed to load posts');
+    }
+    return response.json();
+  }
+
+  function renderHome(payload){
+    const { stats, posts } = payload;
+    const recentPosts = posts.slice(0, 5);
+    const topics = stats.topTags.length
+      ? stats.topTags.map((item) => item.name).join(' · ')
+      : '等待新的文章进入档案库';
+
+    document.getElementById('hero-meta').innerHTML = `
+      <span>SYS.LOG // ${escapeHtml(stats.lastUpdated)}</span>
+      <span class="sep">┃</span>
+      <span>POSTS: ${numberFmt.format(stats.totalPosts)}</span>
+      <span class="sep">┃</span>
+      <span>WORDS: ${escapeHtml(stats.totalWordsLabel)}</span>
+      <span class="sep">┃</span>
+      <span>LATEST: ${escapeHtml(stats.latestPostTitle)}</span>
+    `;
+    document.getElementById('hero-topics').textContent = topics;
+    document.getElementById('hero-posts').textContent = numberFmt.format(stats.totalPosts);
+    document.getElementById('hero-words').textContent = stats.totalWordsLabel;
+    document.getElementById('hero-read').textContent = `${numberFmt.format(stats.totalReadMinutes)} MIN`;
+    document.getElementById('hero-tags').textContent = numberFmt.format(stats.uniqueTags);
+    document.getElementById('feed-tag').textContent = `${recentPosts.length} of ${stats.totalPosts} logs`;
+    document.getElementById('feed-count-label').textContent = `显示 ${recentPosts.length} / ${stats.totalPosts} 条记录 — 实时来自 blog/*.md`;
+
+    const postsList = document.getElementById('posts-list');
+    if(!recentPosts.length){
+      postsList.innerHTML = '<div class="posts-empty">`blog` 目录里还没有文章，新增 `.md` 后刷新页面即可看到。</div>';
+      return;
+    }
+
+    postsList.innerHTML = recentPosts.map(renderPostCard).join('');
+  }
+
+  loadHomeData()
+    .then(renderHome)
+    .catch(() => {
+      document.getElementById('posts-list').innerHTML = '<div class="posts-empty">读取文章失败，请确认 Node 服务已经启动。</div>';
+      document.getElementById('feed-count-label').textContent = '显示 0 / 0 条记录 — API 不可用';
+    });
+</script>
+</body>
+</html>

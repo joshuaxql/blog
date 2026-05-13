@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>joshuaxql // POST</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Major+Mono+Display&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#070710;
+    --bg-2:#0d0d1f;
+    --ink:#e9e9ff;
+    --dim:#7a7aa3;
+    --line:#1a1a35;
+    --cyan:#00f0ff;
+    --magenta:#ff2bd6;
+    --yellow:#f5ff3d;
+    --green:#7CFC9D;
+    --red:#ff3860;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Space Grotesk",sans-serif;overflow-x:hidden}
+  body{
+    background:
+      radial-gradient(1000px 500px at 100% 0%, rgba(255,43,214,.12), transparent 65%),
+      radial-gradient(900px 500px at 0% 20%, rgba(0,240,255,.09), transparent 60%),
+      var(--bg);
+    min-height:100vh;
+  }
+  .grid-bg{
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(0,240,255,.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,240,255,.05) 1px,transparent 1px);
+    background-size:60px 60px;
+    mask-image:radial-gradient(ellipse at 50% 30%,black 0%,transparent 85%);
+  }
+  .scanlines{
+    position:fixed;inset:0;pointer-events:none;z-index:2;
+    background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0px,rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px);
+    mix-blend-mode:overlay;
+  }
+  .noise{
+    position:fixed;inset:0;pointer-events:none;z-index:3;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+  }
+
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(8px);
+    background:linear-gradient(180deg,rgba(7,7,16,.85),rgba(7,7,16,.4));
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:1400px;margin:0 auto;padding:14px 32px;
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
+    font-family:"JetBrains Mono",monospace;font-size:13px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.06em}
+  .brand .dot{width:10px;height:10px;background:var(--green);border-radius:1px;box-shadow:0 0 12px var(--green);animation:blink 1.4s steps(2) infinite}
+  @keyframes blink{50%{opacity:.2}}
+  .brand a{text-decoration:none;color:inherit}
+  .brand b{color:var(--cyan)}
+  .brand s{color:var(--magenta);text-decoration:none}
+  .nav{display:flex;gap:6px;align-items:center}
+  .nav a{
+    color:var(--dim);text-decoration:none;padding:8px 14px;border:1px solid transparent;
+    text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:500;
+    transition:.2s;
+  }
+  .nav a:hover{color:var(--ink);border-color:var(--cyan);box-shadow:inset 0 0 0 1px var(--cyan),0 0 12px rgba(0,240,255,.3)}
+  .nav a.active{color:var(--bg);background:var(--cyan)}
+  .status{display:flex;align-items:center;gap:14px;color:var(--dim)}
+  .status .pip{color:var(--cyan)}
+  .status .live{color:var(--green)}
+
+  .page-head{
+    position:relative;z-index:1;
+    max-width:1400px;margin:0 auto;padding:56px 32px 24px;
+  }
+  .crumbs{
+    font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--dim);
+    letter-spacing:.15em;text-transform:uppercase;margin-bottom:24px;
+  }
+  .crumbs a{color:var(--cyan);text-decoration:none}
+  .crumbs a:hover{color:var(--magenta)}
+  .crumbs .sep{color:var(--line);margin:0 10px}
+
+  .hero-grid{
+    display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:32px;align-items:start;
+  }
+  .title-frame{
+    border:1px solid var(--line);
+    padding:32px 36px;
+    background:linear-gradient(180deg,rgba(13,13,31,.65),rgba(7,7,16,.35));
+    position:relative;
+  }
+  .title-frame::before{
+    content:"";position:absolute;left:0;top:0;width:52px;height:1px;background:var(--cyan);
+  }
+  .title-frame::after{
+    content:"";position:absolute;right:0;bottom:0;width:52px;height:1px;background:var(--magenta);
+  }
+  .eyebrow{
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--cyan);margin-bottom:18px;
+  }
+  .title-frame h1{
+    margin:0;
+    font-size:clamp(42px,6vw,84px);
+    line-height:.98;
+    letter-spacing:-.03em;
+    text-wrap:balance;
+  }
+  .title-frame p{
+    margin:22px 0 0;
+    font-size:18px;
+    line-height:1.8;
+    color:#cccce6;
+    max-width:780px;
+  }
+  .meta-card{
+    border:1px solid var(--line);
+    background:rgba(13,13,31,.6);
+    padding:24px 26px;
+    font-family:"JetBrains Mono",monospace;
+  }
+  .meta-card h3{
+    margin:0 0 16px;
+    font-size:11px;
+    font-weight:500;
+    color:var(--magenta);
+    text-transform:uppercase;
+    letter-spacing:.2em;
+  }
+  .meta-row{
+    display:flex;justify-content:space-between;gap:18px;
+    padding:10px 0;border-bottom:1px solid var(--line);
+    font-size:12px;letter-spacing:.08em;
+  }
+  .meta-row:last-child{border-bottom:0}
+  .meta-row span{color:var(--dim)}
+  .meta-row b{color:var(--ink);font-weight:500;text-align:right}
+
+  .article-shell{
+    position:relative;z-index:1;
+    max-width:1400px;margin:0 auto;padding:24px 32px 60px;
+    display:grid;grid-template-columns:280px minmax(0,1fr);gap:32px;
+  }
+  .side-panel{
+    border:1px solid var(--line);
+    background:rgba(13,13,31,.48);
+    padding:24px;
+    height:fit-content;
+    position:sticky;
+    top:86px;
+  }
+  .side-panel h3{
+    margin:0 0 14px;
+    font-family:"JetBrains Mono",monospace;
+    font-size:11px;
+    color:var(--cyan);
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    font-weight:500;
+  }
+  .side-panel + .side-panel{margin-top:18px}
+  .panel-text{
+    font-family:"JetBrains Mono",monospace;
+    font-size:12px;
+    line-height:1.8;
+    color:var(--dim);
+    word-break:break-word;
+  }
+  .tag-list{display:flex;flex-wrap:wrap;gap:8px}
+  .tag-chip{
+    font-family:"JetBrains Mono",monospace;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+    padding:6px 10px;
+    border:1px solid var(--line);
+    color:var(--dim);
+    background:rgba(0,240,255,.04);
+  }
+  .tag-chip.c{color:var(--cyan);border-color:rgba(0,240,255,.4)}
+  .tag-chip.m{color:var(--magenta);border-color:rgba(255,43,214,.4)}
+  .tag-chip.y{color:var(--yellow);border-color:rgba(245,255,61,.4)}
+  .tag-chip.g{color:var(--green);border-color:rgba(124,252,157,.4)}
+
+  .article-card{
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(13,13,31,.72),rgba(7,7,16,.58));
+    padding:36px 42px;
+    position:relative;
+  }
+  .article-card::before{
+    content:"";position:absolute;left:0;top:0;width:64px;height:1px;background:var(--cyan);
+  }
+  .article-card::after{
+    content:"";position:absolute;right:0;bottom:0;width:64px;height:1px;background:var(--magenta);
+  }
+  .article-content{
+    font-size:18px;
+    line-height:1.9;
+    color:#dddaf6;
+  }
+  .article-content h1,
+  .article-content h2,
+  .article-content h3,
+  .article-content h4{
+    color:var(--ink);
+    letter-spacing:-.02em;
+    line-height:1.15;
+    margin:2.1em 0 .7em;
+  }
+  .article-content h1{font-size:2.3em}
+  .article-content h2{font-size:1.8em}
+  .article-content h3{font-size:1.35em}
+  .article-content p{margin:1.1em 0}
+  .article-content ul,
+  .article-content ol{margin:1.2em 0;padding-left:1.5em}
+  .article-content li{margin:.55em 0}
+  .article-content a{color:var(--cyan);text-decoration:none}
+  .article-content a:hover{color:var(--magenta)}
+  .article-content strong{color:var(--ink)}
+  .article-content code{
+    font-family:"JetBrains Mono",monospace;
+    font-size:.9em;
+    background:rgba(0,240,255,.08);
+    border:1px solid rgba(0,240,255,.16);
+    padding:.18em .38em;
+  }
+  .article-content pre{
+    margin:1.4em 0;
+    padding:18px 20px;
+    overflow:auto;
+    border:1px solid var(--line);
+    background:#05050c;
+  }
+  .article-content pre code{
+    padding:0;border:0;background:none;font-size:.82em;line-height:1.7;
+  }
+  .article-content blockquote{
+    margin:1.4em 0;
+    padding:14px 18px;
+    border-left:3px solid var(--magenta);
+    background:rgba(255,43,214,.05);
+    color:#d9d4f6;
+  }
+  .article-content hr{
+    border:0;border-top:1px dashed var(--line);margin:2em 0;
+  }
+  .article-content img{
+    max-width:100%;
+    border:1px solid var(--line);
+    display:block;
+    margin:1.4em 0;
+  }
+  .article-content table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.4em 0;
+    font-size:.95em;
+  }
+  .article-content th,
+  .article-content td{
+    border:1px solid var(--line);
+    padding:10px 12px;
+    text-align:left;
+  }
+  .article-empty{
+    font-family:"JetBrains Mono",monospace;
+    color:var(--dim);
+  }
+
+  .nearby{
+    position:relative;z-index:1;
+    max-width:1400px;margin:0 auto;padding:0 32px 80px;
+  }
+  .section-head{
+    display:flex;align-items:baseline;gap:16px;margin-bottom:28px;
+    font-family:"JetBrains Mono",monospace;
+  }
+  .section-head .num{color:var(--magenta);font-size:14px;letter-spacing:.2em}
+  .section-head h2{
+    font-family:"Space Grotesk",sans-serif;font-size:34px;font-weight:600;letter-spacing:-.02em;
+    margin:0;color:var(--ink);
+  }
+  .section-head .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--magenta),transparent)}
+  .section-head .tag{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.2em}
+
+  .nearby-grid{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;
+  }
+  .nearby-card{
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(13,13,31,.68),rgba(7,7,16,.54));
+    padding:24px 26px;
+    text-decoration:none;
+    color:var(--ink);
+    transition:.2s;
+  }
+  .nearby-card:hover{border-color:var(--cyan);transform:translateY(-3px)}
+  .nearby-card .meta{
+    display:flex;justify-content:space-between;gap:16px;
+    font-family:"JetBrains Mono",monospace;font-size:11px;
+    color:var(--dim);letter-spacing:.12em;text-transform:uppercase;
+  }
+  .nearby-card h3{
+    margin:18px 0 10px;
+    font-size:24px;
+    line-height:1.2;
+    letter-spacing:-.02em;
+  }
+  .nearby-card p{
+    margin:0;
+    color:var(--dim);
+    line-height:1.7;
+  }
+  .nearby-empty{
+    border:1px dashed var(--line);
+    padding:24px;
+    font-family:"JetBrains Mono",monospace;
+    color:var(--dim);
+    background:rgba(13,13,31,.45);
+  }
+
+  footer.foot{
+    position:relative;z-index:1;border-top:1px solid var(--line);
+    padding:36px 32px;background:rgba(7,7,16,.6);
+    font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--line);text-align:center;
+  }
+
+  @media (max-width:1100px){
+    .hero-grid,.article-shell{grid-template-columns:1fr}
+    .side-panel{position:static}
+  }
+  @media (max-width:640px){
+    .topbar-inner,.page-head,.article-shell,.nearby{padding-left:18px;padding-right:18px}
+    .title-frame,.article-card{padding:24px 22px}
+    .nearby-grid{grid-template-columns:1fr}
+    .nav a:nth-child(n+4){display:none}
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="scanlines"></div>
+<div class="noise"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="dot"></span>
+      <a href="index.html">joshuaxql<span style="color:var(--dim)">.log</span></a>
+    </div>
+    <nav class="nav">
+      <a href="index.html">// HOME</a>
+      <a href="blog.html">// ARCHIVE</a>
+      <a href="index.html#about">// ABOUT</a>
+      <a href="index.html#feed">// FEED</a>
+      <a href="index.html#contact">// COMMS</a>
+    </nav>
+    <div class="status">
+      <span><span class="pip">▲</span> <span id="time">--:--:--</span> UTC</span>
+      <span><span class="live">●</span> ONLINE</span>
+    </div>
+  </div>
+</header>
+
+<section class="page-head">
+  <div class="crumbs">
+    <a href="index.html">// HOME</a><span class="sep">/</span><a href="blog.html">ARCHIVE</a><span class="sep">/</span><span id="crumb-current" style="color:var(--magenta)">LOADING</span>
+  </div>
+
+  <div class="hero-grid">
+    <div class="title-frame">
+      <div class="eyebrow" id="post-eyebrow">LOADING TRANSMISSION</div>
+      <h1 id="post-title">正在读取文章...</h1>
+      <p id="post-summary">页面会在加载后用 `blog/*.md` 里的真实正文替换这里。</p>
+    </div>
+
+    <div class="meta-card">
+      <h3>▌ payload.meta</h3>
+      <div class="meta-row"><span>DATE</span><b id="post-date">--</b></div>
+      <div class="meta-row"><span>READ</span><b id="post-read">--</b></div>
+      <div class="meta-row"><span>WORDS</span><b id="post-words">--</b></div>
+      <div class="meta-row"><span>FILE</span><b id="post-file">--</b></div>
+      <div class="meta-row"><span>STATUS</span><b style="color:var(--green)">LIVE</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="article-shell">
+  <div>
+    <div class="side-panel">
+      <h3>▌ tags</h3>
+      <div class="tag-list" id="post-tags">
+        <span class="tag-chip">loading</span>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <h3>▌ source</h3>
+      <div class="panel-text" id="post-source">
+        等待后端返回 `blog/*.md` 的实时内容。
+      </div>
+    </div>
+  </div>
+
+  <article class="article-card">
+    <div class="article-content" id="post-content">
+      <div class="article-empty">正在读取正文...</div>
+    </div>
+  </article>
+</section>
+
+<section class="nearby">
+  <div class="section-head">
+    <span class="num">// 003</span>
+    <h2>邻近传输 <span style="color:var(--dim);font-weight:300">/ nearby posts</span></h2>
+    <span class="rule"></span>
+    <span class="tag">live neighbors</span>
+  </div>
+
+  <div class="nearby-grid" id="nearby-grid">
+    <div class="nearby-empty">等待文章索引载入...</div>
+  </div>
+</section>
+
+<footer class="foot">// © 2026 joshuaxql — reading directly from live markdown ─━─━─━─</footer>
+
+<script>
+  function tick(){
+    const d = new Date();
+    const p = n => String(n).padStart(2,'0');
+    const el = document.getElementById('time');
+    if(el) el.textContent = `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+  }
+  tick();setInterval(tick,1000);
+
+  const numberFmt = new Intl.NumberFormat('en-US');
+  const tagChipClasses = ['c', 'm', 'y', 'g', ''];
+
+  function escapeHtml(value){
+    return String(value).replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char]));
+  }
+
+  function renderTags(tags){
+    if(!tags.length){
+      return '<span class="tag-chip">未分类</span>';
+    }
+
+    return tags.map((tag, index) => {
+      const className = tagChipClasses[index % tagChipClasses.length];
+      const suffix = className ? ` ${className}` : '';
+      return `<span class="tag-chip${suffix}">${escapeHtml(tag)}</span>`;
+    }).join('');
+  }
+
+  function renderNeighborCard(label, post){
+    if(!post){
+      return '';
+    }
+
+    const href = `post.html?slug=${encodeURIComponent(post.slug)}`;
+    return `
+      <a class="nearby-card" href="${href}">
+        <div class="meta">
+          <span>${escapeHtml(label)}</span>
+          <span>${escapeHtml(post.dateLabel)} · ${post.readMinutes} MIN</span>
+        </div>
+        <h3>${escapeHtml(post.title)}</h3>
+        <p>${escapeHtml(post.summary)}</p>
+      </a>
+    `;
+  }
+
+  function renderNeighbors(neighbors){
+    const cards = [
+      renderNeighborCard('NEWER', neighbors.newer),
+      renderNeighborCard('OLDER', neighbors.older)
+    ].filter(Boolean);
+
+    document.getElementById('nearby-grid').innerHTML = cards.length
+      ? cards.join('')
+      : '<div class="nearby-empty">这是当前唯一一篇文章，暂时没有上下篇。</div>';
+  }
+
+  function renderPost(payload){
+    const { post, neighbors } = payload;
+    document.title = `${post.title} // joshuaxql`;
+    document.getElementById('crumb-current').textContent = post.slug.toUpperCase();
+    document.getElementById('post-eyebrow').textContent = `${post.dateLabel} // ${post.primaryTag.toUpperCase()}`;
+    document.getElementById('post-title').textContent = post.title;
+    document.getElementById('post-summary').textContent = post.summary;
+    document.getElementById('post-date').textContent = post.dateLabel;
+    document.getElementById('post-read').textContent = `${post.readMinutes} MIN`;
+    document.getElementById('post-words').textContent = numberFmt.format(post.wordCount);
+    document.getElementById('post-file').textContent = post.fileName;
+    document.getElementById('post-tags').innerHTML = renderTags(post.tags);
+    document.getElementById('post-source').innerHTML = `slug: ${escapeHtml(post.slug)}<br/>path: blog/${escapeHtml(post.fileName)}<br/>mode: runtime scan`;
+    document.getElementById('post-content').innerHTML = post.contentHtml;
+    renderNeighbors(neighbors);
+  }
+
+  function renderError(message){
+    document.getElementById('post-title').textContent = '文章不可用';
+    document.getElementById('post-summary').textContent = message;
+    document.getElementById('post-content').innerHTML = `<div class="article-empty">${escapeHtml(message)}</div>`;
+    document.getElementById('nearby-grid').innerHTML = '<div class="nearby-empty">当前无法建立邻近文章索引。</div>';
+  }
+
+  async function loadPost(){
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+
+    if(!slug){
+      renderError('缺少 slug 参数。请从首页或归档页进入正文页。');
+      return;
+    }
+
+    const response = await fetch(`/api/posts/${encodeURIComponent(slug)}`);
+    if(!response.ok){
+      throw new Error('failed to load post');
+    }
+
+    const payload = await response.json();
+    renderPost(payload);
+  }
+
+  loadPost().catch(() => {
+    renderError('读取正文失败，请确认 Node 服务已经启动，且目标文章存在。');
+  });
+</script>
+</body>
+</html>
