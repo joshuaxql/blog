@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Major+Mono+Display&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="cursor.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
 <style>
   :root{
     --bg:#070710;
@@ -189,6 +191,34 @@
   .tag-chip.m{color:var(--magenta);border-color:rgba(255,43,214,.4)}
   .tag-chip.y{color:var(--yellow);border-color:rgba(245,255,61,.4)}
   .tag-chip.g{color:var(--green);border-color:rgba(124,252,157,.4)}
+  .toc-list{
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .toc-link{
+    display:block;
+    font-family:"JetBrains Mono",monospace;
+    font-size:11px;
+    line-height:1.6;
+    letter-spacing:.06em;
+    text-decoration:none;
+    color:var(--dim);
+    padding:6px 0 6px 12px;
+    border-left:1px solid var(--line);
+    transition:.18s;
+  }
+  .toc-link:hover,
+  .toc-link.active{
+    color:var(--cyan);
+    border-left-color:var(--cyan);
+    transform:translateX(4px);
+  }
+  .toc-link.level-3{padding-left:24px;font-size:10px}
+  .toc-link.level-4{padding-left:36px;font-size:10px}
+  .toc-empty{
+    font-family:"JetBrains Mono",monospace;
+    font-size:12px;
+    color:var(--dim);
+  }
 
   .article-card{
     border:1px solid var(--line);
@@ -215,6 +245,7 @@
     letter-spacing:-.02em;
     line-height:1.15;
     margin:2.1em 0 .7em;
+    scroll-margin-top:110px;
   }
   .article-content h1{font-size:2.3em}
   .article-content h2{font-size:1.8em}
@@ -232,16 +263,23 @@
     background:rgba(0,240,255,.08);
     border:1px solid rgba(0,240,255,.16);
     padding:.18em .38em;
+    border-radius:0;
   }
   .article-content pre{
     margin:1.4em 0;
-    padding:18px 20px;
+    padding:0;
     overflow:auto;
     border:1px solid var(--line);
     background:#05050c;
+    box-shadow:inset 0 0 0 1px rgba(0,240,255,.04);
   }
   .article-content pre code{
-    padding:0;border:0;background:none;font-size:.82em;line-height:1.7;
+    display:block;
+    padding:18px 20px;
+    border:0;
+    background:none;
+    font-size:.82em;
+    line-height:1.7;
   }
   .article-content blockquote{
     margin:1.4em 0;
@@ -270,6 +308,64 @@
     border:1px solid var(--line);
     padding:10px 12px;
     text-align:left;
+  }
+  .article-content .katex-display{
+    margin:1.6em 0;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:.35em 0;
+  }
+  .article-content .katex{
+    color:var(--ink);
+    font-size:1.04em;
+  }
+  .article-content pre code.hljs{
+    background:#05050c;
+  }
+  .article-content .hljs{
+    color:#d8ecff;
+  }
+  .article-content .hljs-comment,
+  .article-content .hljs-quote{
+    color:#6e7da7;
+    font-style:italic;
+  }
+  .article-content .hljs-keyword,
+  .article-content .hljs-selector-tag,
+  .article-content .hljs-literal,
+  .article-content .hljs-section,
+  .article-content .hljs-link{
+    color:#ff78d3;
+  }
+  .article-content .hljs-string,
+  .article-content .hljs-attr,
+  .article-content .hljs-template-tag,
+  .article-content .hljs-meta .hljs-string{
+    color:#f5ff7d;
+  }
+  .article-content .hljs-number,
+  .article-content .hljs-symbol,
+  .article-content .hljs-bullet,
+  .article-content .hljs-variable,
+  .article-content .hljs-template-variable{
+    color:#ffd089;
+  }
+  .article-content .hljs-title,
+  .article-content .hljs-title.class_,
+  .article-content .hljs-title.function_,
+  .article-content .hljs-type{
+    color:#7ce7ff;
+  }
+  .article-content .hljs-built_in,
+  .article-content .hljs-property,
+  .article-content .hljs-selector-id,
+  .article-content .hljs-selector-class{
+    color:#9cfcb1;
+  }
+  .article-content .hljs-meta,
+  .article-content .hljs-regexp,
+  .article-content .hljs-name{
+    color:#8bb8ff;
   }
   .article-empty{
     font-family:"JetBrains Mono",monospace;
@@ -333,7 +429,6 @@
     padding:36px 32px;background:rgba(7,7,16,.6);
     font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--line);text-align:center;
   }
-
   @media (max-width:1100px){
     .hero-grid,.article-shell{grid-template-columns:1fr}
     .side-panel{position:static}
@@ -377,13 +472,13 @@
   </div>
 
   <div class="hero-grid">
-    <div class="title-frame">
+    <div class="title-frame" data-cursor-frame>
       <div class="eyebrow" id="post-eyebrow">LOADING TRANSMISSION</div>
       <h1 id="post-title">正在读取文章...</h1>
       <p id="post-summary">页面会在加载后用 `blog/*.md` 里的真实正文替换这里。</p>
     </div>
 
-    <div class="meta-card">
+    <div class="meta-card" data-cursor-frame>
       <h3>▌ payload.meta</h3>
       <div class="meta-row"><span>DATE</span><b id="post-date">--</b></div>
       <div class="meta-row"><span>READ</span><b id="post-read">--</b></div>
@@ -396,22 +491,22 @@
 
 <section class="article-shell">
   <div>
-    <div class="side-panel">
+    <div class="side-panel" data-cursor-frame>
       <h3>▌ tags</h3>
       <div class="tag-list" id="post-tags">
         <span class="tag-chip">loading</span>
       </div>
     </div>
 
-    <div class="side-panel">
-      <h3>▌ source</h3>
-      <div class="panel-text" id="post-source">
-        等待后端返回 `blog/*.md` 的实时内容。
+    <div class="side-panel" data-cursor-frame>
+      <h3>▌ sections</h3>
+      <div class="toc-list" id="post-toc">
+        <div class="toc-empty">等待正文生成目录...</div>
       </div>
     </div>
   </div>
 
-  <article class="article-card">
+  <article class="article-card" data-cursor-frame>
     <div class="article-content" id="post-content">
       <div class="article-empty">正在读取正文...</div>
     </div>
@@ -433,6 +528,9 @@
 
 <footer class="foot">// © 2026 joshuaxql — reading directly from live markdown ─━─━─━─</footer>
 
+<script src="cursor.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 <script>
   function tick(){
     const d = new Date();
@@ -444,6 +542,9 @@
 
   const numberFmt = new Intl.NumberFormat('en-US');
   const tagChipClasses = ['c', 'm', 'y', 'g', ''];
+  const postContentEl = document.getElementById('post-content');
+  const tocEl = document.getElementById('post-toc');
+  let activeTocLink = null;
 
   function escapeHtml(value){
     return String(value).replace(/[&<>"']/g, (char) => ({
@@ -467,6 +568,125 @@
     }).join('');
   }
 
+  function slugifyHeading(text, fallbackIndex){
+    const slug = text
+      .trim()
+      .toLowerCase()
+      .replace(/[^\w\u4e00-\u9fa5\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    return slug || `section-${fallbackIndex}`;
+  }
+
+  function renderToc(headings){
+    if(!headings.length){
+      tocEl.innerHTML = '<div class="toc-empty">本文暂无可跳转的小节标题。</div>';
+      return;
+    }
+
+    tocEl.innerHTML = headings.map((item) => `
+      <a class="toc-link level-${item.level}" href="#${encodeURIComponent(item.id)}" data-target-id="${escapeHtml(item.id)}">
+        ${escapeHtml(item.text)}
+      </a>
+    `).join('');
+  }
+
+  function setActiveTocLink(id){
+    if(activeTocLink){
+      activeTocLink.classList.remove('active');
+    }
+
+    activeTocLink = tocEl.querySelector(`.toc-link[data-target-id="${CSS.escape(id)}"]`);
+    if(activeTocLink){
+      activeTocLink.classList.add('active');
+    }
+  }
+
+  function buildToc(){
+    const headings = Array.from(postContentEl.querySelectorAll('h2, h3, h4'));
+    const usedIds = new Set();
+    const items = headings.map((heading, index) => {
+      const text = heading.textContent.trim();
+      let id = heading.id || slugifyHeading(text, index + 1);
+
+      while(usedIds.has(id)){
+        id = `${id}-${index + 1}`;
+      }
+
+      usedIds.add(id);
+      heading.id = id;
+
+      return {
+        id,
+        text: text || `Section ${index + 1}`,
+        level: Number(heading.tagName.slice(1))
+      };
+    });
+
+    renderToc(items);
+
+    if(items[0]){
+      setActiveTocLink(items[0].id);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      const visibleEntries = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((left, right) => left.boundingClientRect.top - right.boundingClientRect.top);
+
+      if(visibleEntries[0]){
+        setActiveTocLink(visibleEntries[0].target.id);
+      }
+    }, {
+      rootMargin: '-18% 0px -68% 0px',
+      threshold: [0, 1]
+    });
+
+    headings.forEach((heading) => observer.observe(heading));
+  }
+
+  function enhanceMath(){
+    if(typeof window.renderMathInElement !== 'function'){
+      return;
+    }
+
+    window.renderMathInElement(postContentEl, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '\\[', right: '\\]', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false }
+      ],
+      throwOnError: false,
+      strict: 'ignore'
+    });
+  }
+
+  function whenLibReady(check, timeoutMs = 5000){
+    return new Promise((resolve) => {
+      if(check()){
+        resolve();
+        return;
+      }
+
+      const startedAt = Date.now();
+      const timer = window.setInterval(() => {
+        if(check() || Date.now() - startedAt > timeoutMs){
+          window.clearInterval(timer);
+          resolve();
+        }
+      }, 40);
+    });
+  }
+
+  async function enhanceArticleContent(){
+    await whenLibReady(() => typeof window.renderMathInElement === 'function');
+    enhanceMath();
+    buildToc();
+  }
+
   function renderNeighborCard(label, post){
     if(!post){
       return '';
@@ -474,7 +694,7 @@
 
     const href = `post.html?slug=${encodeURIComponent(post.slug)}`;
     return `
-      <a class="nearby-card" href="${href}">
+      <a class="nearby-card" href="${href}" data-cursor-frame>
         <div class="meta">
           <span>${escapeHtml(label)}</span>
           <span>${escapeHtml(post.dateLabel)} · ${post.readMinutes} MIN</span>
@@ -493,10 +713,10 @@
 
     document.getElementById('nearby-grid').innerHTML = cards.length
       ? cards.join('')
-      : '<div class="nearby-empty">这是当前唯一一篇文章，暂时没有上下篇。</div>';
+      : '<div class="nearby-empty" data-cursor-frame>这是当前唯一一篇文章，暂时没有上下篇。</div>';
   }
 
-  function renderPost(payload){
+  async function renderPost(payload){
     const { post, neighbors } = payload;
     document.title = `${post.title} // joshuaxql`;
     document.getElementById('crumb-current').textContent = post.slug.toUpperCase();
@@ -508,16 +728,17 @@
     document.getElementById('post-words').textContent = numberFmt.format(post.wordCount);
     document.getElementById('post-file').textContent = post.fileName;
     document.getElementById('post-tags').innerHTML = renderTags(post.tags);
-    document.getElementById('post-source').innerHTML = `slug: ${escapeHtml(post.slug)}<br/>path: blog/${escapeHtml(post.fileName)}<br/>mode: runtime scan`;
-    document.getElementById('post-content').innerHTML = post.contentHtml;
+    postContentEl.innerHTML = post.contentHtml;
+    await enhanceArticleContent();
     renderNeighbors(neighbors);
   }
 
   function renderError(message){
     document.getElementById('post-title').textContent = '文章不可用';
     document.getElementById('post-summary').textContent = message;
-    document.getElementById('post-content').innerHTML = `<div class="article-empty">${escapeHtml(message)}</div>`;
-    document.getElementById('nearby-grid').innerHTML = '<div class="nearby-empty">当前无法建立邻近文章索引。</div>';
+    postContentEl.innerHTML = `<div class="article-empty">${escapeHtml(message)}</div>`;
+    tocEl.innerHTML = '<div class="toc-empty">正文未加载，目录不可用。</div>';
+    document.getElementById('nearby-grid').innerHTML = '<div class="nearby-empty" data-cursor-frame>当前无法建立邻近文章索引。</div>';
   }
 
   async function loadPost(){
@@ -535,11 +756,11 @@
     }
 
     const payload = await response.json();
-    renderPost(payload);
+    await renderPost(payload);
   }
 
   loadPost().catch(() => {
-    renderError('读取正文失败，请确认 Node 服务已经启动，且目标文章存在。');
+    renderError('读取正文失败，请确认 Worker 本地预览已启动，或 Cloudflare 部署已完成。');
   });
 </script>
 </body>

@@ -5,6 +5,7 @@ const path = require("path");
 const { URL } = require("url");
 
 const matter = require("gray-matter");
+const hljs = require("highlight.js");
 const { marked } = require("marked");
 
 const ROOT_DIR = __dirname;
@@ -30,6 +31,63 @@ const CONTENT_TYPES = {
 marked.setOptions({
   gfm: true,
   breaks: false
+});
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function normalizeCodeLanguage(lang) {
+  const source = typeof lang === "string" ? lang.trim().toLowerCase() : "";
+  if (!source) {
+    return "";
+  }
+
+  const aliases = {
+    shell: "bash",
+    sh: "bash",
+    zsh: "bash",
+    ps1: "powershell",
+    yml: "yaml",
+    text: "plaintext",
+    plaintext: "plaintext"
+  };
+
+  return aliases[source] || source;
+}
+
+function renderCodeBlock(text, lang) {
+  const normalizedLang = normalizeCodeLanguage(lang);
+
+  if (normalizedLang && hljs.getLanguage(normalizedLang)) {
+    const highlighted = hljs.highlight(text, {
+      language: normalizedLang,
+      ignoreIllegals: true
+    }).value;
+
+    return `<pre><code class="hljs language-${escapeHtml(normalizedLang)}">${highlighted}</code></pre>\n`;
+  }
+
+  const autoHighlighted = hljs.highlightAuto(text);
+  const languageClass = autoHighlighted.language
+    ? ` language-${escapeHtml(autoHighlighted.language)}`
+    : "";
+
+  return `<pre><code class="hljs${languageClass}">${autoHighlighted.value}</code></pre>\n`;
+}
+
+marked.use({
+  renderer: {
+    code({ text, lang }) {
+      return renderCodeBlock(text, lang);
+    }
+  }
 });
 
 function formatDate(date) {
@@ -415,9 +473,11 @@ if (require.main === module) {
 
 module.exports = {
   buildSiteStats,
+  buildTagStats,
   countWords,
   createServer,
   estimateReadMinutes,
   loadPosts,
-  startServer
+  startServer,
+  toPublicPost
 };

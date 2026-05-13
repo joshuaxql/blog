@@ -2,12 +2,20 @@
   "name": "blog",
   "version": "1.0.0",
   "private": true,
-  "main": "server.js",
+  "main": "worker.mjs",
   "scripts": {
-    "start": "node server.js"
+    "build": "node build.js",
+    "dev": "npm run build && node ./node_modules/wrangler/bin/wrangler.js dev",
+    "start": "npm run dev",
+    "deploy": "npm run build && node ./node_modules/wrangler/bin/wrangler.js deploy",
+    "deploy:ci": "node ./node_modules/wrangler/bin/wrangler.js deploy"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
+    "highlight.js": "^11.11.1",
     "marked": "^18.0.3"
+  },
+  "devDependencies": {
+    "wrangler": "^4.16.1"
   }
 }

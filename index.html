@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Major+Mono+Display&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="cursor.css" />
 <style>
   :root{
     --bg:#070710;
@@ -361,7 +362,7 @@
 
 <!-- ─────────── HERO ─────────── -->
 <section class="hero">
-  <div class="hero-frame">
+  <div class="hero-frame" data-cursor-frame>
     <span class="corner tl"></span>
     <span class="corner tr"></span>
     <span class="corner bl"></span>
@@ -421,7 +422,7 @@
   </div>
 
   <div class="about-grid">
-    <div class="panel">
+    <div class="panel" data-cursor-frame>
       <h3>▌ readme.txt</h3>
       <div class="about-body">
         <p>你好。这里是 <strong>joshuaxql</strong>——一个被指向空地址的我，
@@ -445,7 +446,7 @@
       </div>
     </div>
 
-    <div class="panel magenta">
+    <div class="panel magenta" data-cursor-frame>
       <h3>▌ ./manifest --verbose</h3>
       <div class="term">
         <div><span class="prompt">root@joshuaxql</span>:<span class="path">~/why</span>$ cat .manifesto</div>
@@ -508,6 +509,7 @@
   <div class="copy">// © 2026 joshuaxql — no cookies, no trackers, just thoughts ─━─━─━─</div>
 </footer>
 
+<script src="cursor.js"></script>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // 实时时钟
   function tick(){
@@ -548,7 +550,7 @@
     const featured = index === 0;
     const dateMeta = featured ? `${post.dateLabel} · ${post.readMinutes} MIN READ` : `${post.monthDay} · ${post.readMinutes} MIN`;
     return `
-      <a class="post${featured ? ' featured' : ''}" href="${href}">
+      <a class="post${featured ? ' featured' : ''}" href="${href}" data-cursor-frame>
         <span class="post-id">${padIndex(index + 1)}</span>
         <div class="post-meta">
           <span class="cat">// ${escapeHtml(post.primaryTag.toUpperCase())}</span>
@@ -596,7 +598,7 @@
 
     const postsList = document.getElementById('posts-list');
     if(!recentPosts.length){
-      postsList.innerHTML = '<div class="posts-empty">`blog` 目录里还没有文章，新增 `.md` 后刷新页面即可看到。</div>';
+      postsList.innerHTML = '<div class="posts-empty" data-cursor-frame>`blog` 目录里还没有文章，新增 `.md` 后刷新页面即可看到。</div>';
       return;
     }
 
@@ -606,7 +608,7 @@
   loadHomeData()
     .then(renderHome)
     .catch(() => {
-      document.getElementById('posts-list').innerHTML = '<div class="posts-empty">读取文章失败，请确认 Node 服务已经启动。</div>';
+      document.getElementById('posts-list').innerHTML = '<div class="posts-empty" data-cursor-frame>读取文章失败，请确认 Worker 本地预览已启动，或 Cloudflare 部署已完成。</div>';
       document.getElementById('feed-count-label').textContent = '显示 0 / 0 条记录 — API 不可用';
     });
 </script>
