@@ -1,4 +1,52 @@
-body.cursor-ready *{
+html{
+  scrollbar-width:thin;
+  scrollbar-color:rgba(0,240,255,.92) rgba(255,43,214,.14);
+}
+
+html::-webkit-scrollbar,
+.theme-scrollbar::-webkit-scrollbar{
+  width:12px;
+  height:12px;
+  background:#070714;
+}
+
+html::-webkit-scrollbar-track,
+.theme-scrollbar::-webkit-scrollbar-track{
+  background:
+    linear-gradient(180deg, rgba(255,43,214,.08), rgba(0,240,255,.08)),
+    #070714;
+  border-top:1px solid rgba(0,240,255,.14);
+  box-shadow:inset 0 0 0 1px rgba(255,43,214,.08);
+}
+
+html::-webkit-scrollbar-thumb,
+.theme-scrollbar::-webkit-scrollbar-thumb{
+  background:linear-gradient(90deg, rgba(0,240,255,.92), rgba(255,43,214,.88));
+  border:2px solid #070714;
+  box-shadow:
+    0 0 12px rgba(0,240,255,.28),
+    0 0 18px rgba(255,43,214,.16);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+.theme-scrollbar::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(90deg, rgba(124,252,157,.95), rgba(0,240,255,.95), rgba(255,43,214,.92));
+}
+
+html::-webkit-scrollbar-corner,
+.theme-scrollbar::-webkit-scrollbar-corner{
+  background:#070714;
+  box-shadow:inset 0 0 0 1px rgba(0,240,255,.12);
+}
+
+.theme-scrollbar{
+  scrollbar-width:thin;
+  scrollbar-color:rgba(0,240,255,.92) rgba(255,43,214,.14);
+}
+
+html.cursor-ready,
+html.cursor-ready body,
+html.cursor-ready body *{
   cursor:none !important;
 }
 
@@ -72,7 +120,9 @@ body.cursor-ready *{
 }
 
 @media (hover:none), (pointer:coarse){
-  body.cursor-ready *{
+  html.cursor-ready,
+  html.cursor-ready body,
+  html.cursor-ready body *{
     cursor:auto !important;
   }
 

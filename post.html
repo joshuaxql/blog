@@ -220,8 +220,10 @@
   .toc-list{
     display:flex;flex-direction:column;gap:10px;
     min-height:0;
-    overflow:auto;
-    padding-right:4px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding-right:6px;
+    scrollbar-gutter:stable;
   }
   .toc-link{
     display:block;
@@ -234,12 +236,16 @@
     padding:7px 0 7px 16px;
     border-left:1px solid var(--line);
     transition:.18s;
+    overflow-wrap:anywhere;
+    word-break:break-word;
   }
   .toc-link:hover,
   .toc-link.active{
     color:var(--cyan);
     border-left-color:var(--cyan);
-    transform:translateX(4px);
+    background:linear-gradient(90deg, rgba(0,240,255,.12), transparent 78%);
+    box-shadow:inset 1px 0 0 rgba(0,240,255,.28);
+    text-shadow:0 0 10px rgba(0,240,255,.18);
   }
   .toc-link.level-1{padding-left:16px;font-size:13px}
   .toc-link.level-2{padding-left:28px;font-size:12px}
@@ -584,7 +590,7 @@
     <div class="toc-anchor" aria-hidden="true"></div>
     <div class="side-panel toc-panel" data-cursor-frame>
       <h3>▌ sections</h3>
-      <div class="toc-list" id="post-toc">
+      <div class="toc-list theme-scrollbar" id="post-toc">
         <div class="toc-empty">等待正文生成目录...</div>
       </div>
     </div>
