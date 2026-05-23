@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>joshuaxql // loading</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --bg:#070710;
+    --bg-2:#0d0d1f;
+    --ink:#e9e9ff;
+    --dim:#7a7aa3;
+    --line:#1a1a35;
+    --cyan:#00f0ff;
+    --magenta:#ff2bd6;
+    --green:#7CFC9D;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%;background:var(--bg);overflow:hidden}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,43,214,.15), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(0,240,255,.12), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Space Grotesk",sans-serif;
+  }
+  .shell-frame{
+    border:0;
+    display:block;
+    height:100%;
+    inset:0;
+    position:fixed;
+    width:100%;
+    z-index:1;
+  }
+  .shell-status{
+    align-items:center;
+    background:
+      linear-gradient(180deg, rgba(13,13,31,.76), rgba(7,7,16,.46));
+    border:1px solid rgba(0,240,255,.24);
+    bottom:24px;
+    color:var(--dim);
+    display:flex;
+    font:12px/1.4 "JetBrains Mono",monospace;
+    gap:10px;
+    left:24px;
+    letter-spacing:.14em;
+    padding:10px 14px;
+    position:fixed;
+    text-transform:uppercase;
+    transition:opacity .25s ease, transform .25s ease;
+    z-index:2;
+  }
+  .shell-status::before{
+    background:var(--green);
+    border-radius:999px;
+    box-shadow:0 0 12px var(--green);
+    content:"";
+    display:block;
+    height:8px;
+    width:8px;
+  }
+  .shell-status.is-hidden{
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(8px);
+  }
+</style>
+</head>
+<body>
+<iframe class="shell-frame" id="shell-frame" name="shell-frame" src="about:blank"></iframe>
+<div class="shell-status" id="shell-status">loading shell</div>
+<script>
+  const SHELL_ASSET_PATH = "/shell.html";
+  const CONTENT_FRAME_PARAM = "shell-frame";
+  const DEFAULT_SRC = "/";
+  const frame = document.getElementById("shell-frame");
+  const status = document.getElementById("shell-status");
+  let activePath = null;
+
+  function normalizeSrc(rawValue) {
+    try {
+      const candidate = new URL(rawValue || DEFAULT_SRC, window.location.origin);
+      const isHttp = candidate.protocol === "http:" || candidate.protocol === "https:";
+
+      if (!isHttp || candidate.origin !== window.location.origin) {
+        return DEFAULT_SRC;
+      }
+
+      candidate.searchParams.delete(CONTENT_FRAME_PARAM);
+
+      if (candidate.pathname === SHELL_ASSET_PATH) {
+        return DEFAULT_SRC;
+      }
+
+      return `${candidate.pathname}${candidate.search}${candidate.hash}` || DEFAULT_SRC;
+    } catch {
+      return DEFAULT_SRC;
+    }
+  }
+
+  function buildFramePath(pagePath) {
+    const targetUrl = new URL(pagePath || DEFAULT_SRC, window.location.origin);
+    targetUrl.searchParams.set(CONTENT_FRAME_PARAM, "1");
+    return `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`;
+  }
+
+  function readFramePath() {
+    try {
+      const locationLike = frame.contentWindow.location;
+      return normalizeSrc(`${locationLike.pathname}${locationLike.search}${locationLike.hash}`);
+    } catch {
+      return null;
+    }
+  }
+
+  function syncFromFrame() {
+    const framePath = readFramePath();
+    if (framePath) {
+      activePath = framePath;
+    }
+
+    try {
+      const frameTitle = frame.contentDocument && frame.contentDocument.title;
+      if (frameTitle) {
+        document.title = frameTitle;
+      }
+    } catch {
+      document.title = "joshuaxql // shell";
+    }
+  }
+
+  function loadFrame(pagePath) {
+    const normalizedPath = normalizeSrc(pagePath);
+    status.classList.remove("is-hidden");
+    activePath = normalizedPath;
+    frame.src = buildFramePath(normalizedPath);
+  }
+
+  const initialSrc = normalizeSrc(window.location.href);
+  loadFrame(initialSrc);
+
+  frame.addEventListener("load", () => {
+    status.classList.add("is-hidden");
+    syncFromFrame();
+  });
+
+  window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin) {
+      return;
+    }
+
+    const data = event.data || {};
+    if (data.type === "shell:navigate-start") {
+      const nextPath = normalizeSrc(data.path);
+      if (nextPath !== activePath) {
+        history.pushState({ path: nextPath }, "", nextPath);
+        activePath = nextPath;
+      }
+      status.classList.remove("is-hidden");
+      return;
+    }
+
+    if (data.type !== "shell:navigate") {
+      return;
+    }
+
+    const nextPath = normalizeSrc(data.path);
+    if (nextPath !== activePath) {
+      history.replaceState({ path: nextPath }, "", nextPath);
+      activePath = nextPath;
+    }
+
+    if (typeof data.title === "string" && data.title.trim()) {
+      document.title = data.title;
+    }
+  });
+
+  window.addEventListener("popstate", () => {
+    const desiredPath = normalizeSrc(window.location.href);
+    const currentPath = readFramePath();
+
+    if (desiredPath !== currentPath) {
+      loadFrame(desiredPath);
+    }
+  });
+</script>
+<script type="module" src="asset/live2d-widget/live2d-init.js"></script>
+</body>
+</html>

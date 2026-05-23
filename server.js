@@ -11,6 +11,7 @@ const { marked } = require("marked");
 const ROOT_DIR = __dirname;
 const BLOG_DIR = path.join(ROOT_DIR, "blog");
 const PORT = Number(process.env.PORT) || 3000;
+const SHELL_CONTENT_PATHS = new Set(["/", "/index.html", "/blog.html", "/post.html"]);
 
 const CONTENT_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -366,8 +367,13 @@ function resolveStaticPath(requestPath) {
   return filePath;
 }
 
-async function serveStatic(requestPath, response) {
-  const filePath = resolveStaticPath(requestPath);
+function shouldServeShell(requestUrl) {
+  return SHELL_CONTENT_PATHS.has(requestUrl.pathname) && requestUrl.searchParams.get("shell-frame") !== "1";
+}
+
+async function serveStatic(requestUrl, response) {
+  const effectivePath = shouldServeShell(requestUrl) ? "/shell.html" : requestUrl.pathname;
+  const filePath = resolveStaticPath(effectivePath);
   if (!filePath) {
     sendError(response, 403, "非法路径。");
     return;
@@ -451,7 +457,7 @@ function createServer() {
         return;
       }
 
-      await serveStatic(requestUrl.pathname, response);
+      await serveStatic(requestUrl, response);
     } catch (error) {
       console.error(error);
       sendError(response, 500, "服务器内部错误。");

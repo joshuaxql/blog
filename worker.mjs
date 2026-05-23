@@ -1,5 +1,7 @@
 import { postPayloadBySlug, summaryPayload } from "./.generated/posts-data.mjs";
 
+const SHELL_CONTENT_PATHS = new Set(["/", "/index.html", "/blog.html", "/post.html"]);
+
 function jsonResponse(payload, status = 200) {
   return new Response(JSON.stringify(payload), {
     status,
@@ -12,6 +14,10 @@ function jsonResponse(payload, status = 200) {
 
 function buildNotFound(message) {
   return jsonResponse({ error: message }, 404);
+}
+
+function shouldServeShell(url) {
+  return SHELL_CONTENT_PATHS.has(url.pathname) && url.searchParams.get("shell-frame") !== "1";
 }
 
 export default {
@@ -35,6 +41,12 @@ export default {
       }
 
       return jsonResponse(payload);
+    }
+
+    if (shouldServeShell(url)) {
+      const shellUrl = new URL(request.url);
+      shellUrl.pathname = "/shell.html";
+      return env.ASSETS.fetch(shellUrl.toString());
     }
 
     return env.ASSETS.fetch(request);

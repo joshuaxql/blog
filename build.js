@@ -6,7 +6,16 @@ const { buildSiteStats, buildTagStats, loadPosts, toPublicPost } = require("./se
 const ROOT_DIR = __dirname;
 const DIST_DIR = path.join(ROOT_DIR, "dist");
 const GENERATED_DIR = path.join(ROOT_DIR, ".generated");
-const STATIC_FILES = ["index.html", "blog.html", "post.html", "cursor.css", "cursor.js"];
+const STATIC_FILES = [
+  "index.html",
+  "blog.html",
+  "post.html",
+  "shell.html",
+  "shell-bridge.js",
+  "cursor.css",
+  "cursor.js"
+];
+const STATIC_DIRECTORIES = ["asset"];
 
 async function ensureDir(dirPath) {
   await fs.mkdir(dirPath, { recursive: true });
@@ -29,6 +38,16 @@ async function copyStaticFiles() {
       const sourcePath = path.join(ROOT_DIR, fileName);
       const targetPath = path.join(DIST_DIR, fileName);
       await fs.copyFile(sourcePath, targetPath);
+    })
+  );
+}
+
+async function copyStaticDirectories() {
+  await Promise.all(
+    STATIC_DIRECTORIES.map(async (directoryName) => {
+      const sourcePath = path.join(ROOT_DIR, directoryName);
+      const targetPath = path.join(DIST_DIR, directoryName);
+      await fs.cp(sourcePath, targetPath, { recursive: true, force: true });
     })
   );
 }
@@ -82,6 +101,7 @@ async function main() {
 
   await cleanDir(DIST_DIR);
   await copyStaticFiles();
+  await copyStaticDirectories();
   await writeGeneratedModule(payload);
 
   console.log(`Built ${posts.length} post(s) for Cloudflare Worker deployment.`);

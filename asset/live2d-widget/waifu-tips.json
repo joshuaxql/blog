@@ -1,0 +1,187 @@
+{
+  "mouseover": [
+    {
+      "selector": "#waifu-tool-hitokoto",
+      "text": [
+        "点一下，我换一句话给你。",
+        "想听一条随机台词吗？"
+      ]
+    },
+    {
+      "selector": "#waifu-tool-photo",
+      "text": [
+        "要合影的话，记得把我拍好看一点。",
+        "截图键准备好了没？"
+      ]
+    },
+    {
+      "selector": "#waifu-tool-quit",
+      "text": [
+        "先躲一会儿也行，想我了再叫我出来。",
+        "需要安静模式的话，我可以先待机。"
+      ]
+    },
+    {
+      "selector": ".brand, .brand a",
+      "text": [
+        "这里是站点的主控台入口。",
+        "抬头这块就是整站的识别信号。"
+      ]
+    },
+    {
+      "selector": ".nav a",
+      "text": [
+        "想切到 <span>{text}</span> 看看吗？",
+        "这个入口会带你去 <span>{text}</span>。"
+      ]
+    },
+    {
+      "selector": ".btn, .filter",
+      "text": [
+        "这个按钮会切换视图或直接前往下一段内容。",
+        "点一下就会有新东西出现。"
+      ]
+    },
+    {
+      "selector": ".post, .row, .nearby-card",
+      "text": [
+        "这条记录看起来值得点开。",
+        "如果你还没决定读哪篇，可以从这里开始。"
+      ]
+    },
+    {
+      "selector": ".toc-link",
+      "text": [
+        "这里可以快速跳到 <span>{text}</span>。",
+        "目录跳转会比手动滚动快很多。"
+      ]
+    },
+    {
+      "selector": ".tag-chip",
+      "text": [
+        "标签会把同类内容聚在一起。",
+        "顺着标签找，会更容易翻到相关主题。"
+      ]
+    },
+    {
+      "selector": ".hero-frame, .title-frame, .panel, .article-card",
+      "text": [
+        "这块就是页面的主内容区。",
+        "当前看到的是这页最重要的内容面板。"
+      ]
+    },
+    {
+      "selector": ".article-content a",
+      "text": [
+        "文中还埋了一个链接：<span>{text}</span>。",
+        "点开这个链接可以继续追踪上下文。"
+      ]
+    },
+    {
+      "selector": "a[href*='github.com']",
+      "text": [
+        "源码、实验和仓库通常都在这里。",
+        "GitHub 那边一般能看到更完整的上下文。"
+      ]
+    },
+    {
+      "selector": "a[href^='mailto:']",
+      "text": [
+        "如果要发邮件，记得把来意写清楚一点。",
+        "邮件通道在这里。"
+      ]
+    }
+  ],
+  "click": [
+    {
+      "selector": ".btn, .nav a",
+      "text": [
+        "正在跳转，稍等一下。",
+        "收到，马上切过去。"
+      ]
+    },
+    {
+      "selector": ".post, .row, .nearby-card",
+      "text": [
+        "正在打开文章，慢慢看。",
+        "这篇内容已经在路上了。"
+      ]
+    },
+    {
+      "selector": ".toc-link",
+      "text": [
+        "已帮你定位到这一节。",
+        "这下应该更容易继续往下读了。"
+      ]
+    }
+  ],
+  "seasons": [
+    {
+      "date": "01/01",
+      "text": "新的一年也要继续写点有意思的东西。"
+    },
+    {
+      "date": "12/24-12/25",
+      "text": "节日快乐，别忘了偶尔停下来休息一下。"
+    }
+  ],
+  "time": [
+    {
+      "hour": "6-10",
+      "text": "早上好，今天也适合写点代码、读点东西。"
+    },
+    {
+      "hour": "11-13",
+      "text": "中午了，别忘了吃饭。"
+    },
+    {
+      "hour": "14-18",
+      "text": "下午容易走神，换个页面看看也许会有灵感。"
+    },
+    {
+      "hour": "19-23",
+      "text": "晚上好，适合静下来读一篇长文。"
+    },
+    {
+      "hour": "0-5",
+      "text": "已经很晚了，记得让眼睛也下班。"
+    }
+  ],
+  "message": {
+    "default": [
+      "Ariu 已接入本地节点，有事就点我。",
+      "这次是本地模型，不走外部模型仓库。",
+      "代码和博客都在刷新，我也在。",
+      "想听一句话、截张图，或者只是路过都行。"
+    ],
+    "console": "控制台也打开啦？这里没有玄学，只有认真写过的代码。",
+    "copy": "复制的时候记得顺手带上出处。",
+    "visibilitychange": "欢迎回来，我还在这里。",
+    "changeSuccess": "新状态切换完成。",
+    "changeFail": "现在还没有别的可切换内容。",
+    "photo": "截图完成，希望这张把我拍好看了。",
+    "goodbye": "先待机一会儿，想我了再把我叫出来。",
+    "hitokoto": "这句一言来自 <span>「$1」</span>，由 <span>$2</span> 投稿。",
+    "welcome": "欢迎来到<span>「$1」</span>",
+    "referrer": "你好呀，来自 <span>$1</span> 的朋友",
+    "hoverBody": [
+      "别戳别戳，我在认真站岗。",
+      "鼠标靠太近啦。",
+      "有话好说，不用上手。"
+    ],
+    "tapBody": [
+      "收到，你点到我啦。",
+      "我在，别着急。",
+      "轻一点，我还要继续值班。"
+    ]
+  },
+  "models": [
+    {
+      "name": "Ariu",
+      "paths": [
+        "/asset/ariu/ariu.model3.json"
+      ],
+      "message": "Ariu 已成功接入。"
+    }
+  ]
+}
