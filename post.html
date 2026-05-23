@@ -5,12 +5,11 @@
 <title>joshuaxql // POST</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" href="asset/icon.ico" sizes="any" />
-<script src="shell-bridge.js"></script>
+<script defer src="shell-bridge.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Major+Mono+Display&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="cursor.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
 <style>
   :root{
     --bg:#070710;
@@ -621,8 +620,7 @@
 <footer class="foot">// © 2026 joshuaxql — reading directly from live markdown ─━─━─━─</footer>
 
 <script src="cursor.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script src="site-data.js"></script>
 <script>
   const beijingTimeFormatter = new Intl.DateTimeFormat('zh-CN', {
     timeZone: 'Asia/Shanghai',
@@ -827,9 +825,27 @@
     });
   }
 
+  function contentMayContainMath(html){
+    return /(^|[^\\])\$\$|(^|[^\\])\$[^$\n][\s\S]*?[^\\]\$|\\\(|\\\[/.test(html);
+  }
+
+  async function ensureMathRuntime(contentHtml){
+    if(!contentMayContainMath(contentHtml) || !window.blogRuntime){
+      return;
+    }
+
+    await window.blogRuntime.ensureStylesheet('https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css');
+    await window.blogRuntime.ensureScript('https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js');
+    await window.blogRuntime.ensureScript('https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js');
+  }
+
   async function enhanceArticleContent(){
-    await whenLibReady(() => typeof window.renderMathInElement === 'function');
-    enhanceMath();
+    const currentHtml = postContentEl.innerHTML;
+    await ensureMathRuntime(currentHtml);
+    if(contentMayContainMath(currentHtml)){
+      await whenLibReady(() => typeof window.renderMathInElement === 'function');
+      enhanceMath();
+    }
     buildToc();
   }
 
@@ -897,12 +913,15 @@
       return;
     }
 
-    const response = await fetch(`/api/posts/${encodeURIComponent(slug)}`);
-    if(!response.ok){
-      throw new Error('failed to load post');
-    }
-
-    const payload = await response.json();
+    const payload = window.blogRuntime && typeof window.blogRuntime.loadPostBySlug === 'function'
+      ? await window.blogRuntime.loadPostBySlug(slug)
+      : await (async () => {
+          const response = await fetch(`/api/posts/${encodeURIComponent(slug)}`);
+          if(!response.ok){
+            throw new Error('failed to load post');
+          }
+          return response.json();
+        })();
     await renderPost(payload);
   }
 

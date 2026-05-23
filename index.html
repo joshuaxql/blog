@@ -5,7 +5,7 @@
 <title>joshuaxql // 主页</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" href="asset/icon.ico" sizes="any" />
-<script src="shell-bridge.js"></script>
+<script defer src="shell-bridge.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Major+Mono+Display&display=swap" rel="stylesheet" />
@@ -503,7 +503,8 @@
 </footer>
 
 <script src="cursor.js"></script>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script src="site-data.js"></script>
+<script>
   // 实时时钟
   const beijingTimeFormatter = new Intl.DateTimeFormat('zh-CN', {
     timeZone: 'Asia/Shanghai',
@@ -564,6 +565,9 @@
   }
 
   async function loadHomeData(){
+    if(window.blogRuntime && typeof window.blogRuntime.loadPostsSummary === 'function'){
+      return window.blogRuntime.loadPostsSummary();
+    }
     const response = await fetch('/api/posts');
     if(!response.ok){
       throw new Error('failed to load posts');

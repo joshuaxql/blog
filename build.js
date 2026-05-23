@@ -12,6 +12,7 @@ const STATIC_FILES = [
   "post.html",
   "shell.html",
   "shell-bridge.js",
+  "site-data.js",
   "cursor.css",
   "cursor.js"
 ];
@@ -47,7 +48,13 @@ async function copyStaticDirectories() {
     STATIC_DIRECTORIES.map(async (directoryName) => {
       const sourcePath = path.join(ROOT_DIR, directoryName);
       const targetPath = path.join(DIST_DIR, directoryName);
-      await fs.cp(sourcePath, targetPath, { recursive: true, force: true });
+      await fs.cp(sourcePath, targetPath, {
+        recursive: true,
+        force: true,
+        filter(source) {
+          return path.extname(source).toLowerCase() !== ".map";
+        }
+      });
     })
   );
 }

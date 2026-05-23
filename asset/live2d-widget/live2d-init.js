@@ -58,6 +58,35 @@ async function initLive2dWidget() {
   });
 }
 
-initLive2dWidget().catch((error) => {
-  console.warn("[Live2D Widget] failed to initialize.", error);
-});
+function scheduleWidgetInit() {
+  let started = false;
+
+  function start() {
+    if (started) {
+      return;
+    }
+
+    started = true;
+    initLive2dWidget().catch((error) => {
+      console.warn("[Live2D Widget] failed to initialize.", error);
+    });
+  }
+
+  function queue() {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(start, { timeout: 2500 });
+      return;
+    }
+
+    window.setTimeout(start, 1200);
+  }
+
+  if (document.readyState === "complete") {
+    queue();
+    return;
+  }
+
+  window.addEventListener("load", queue, { once: true });
+}
+
+scheduleWidgetInit();
