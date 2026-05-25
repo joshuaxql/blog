@@ -320,6 +320,58 @@
     scrollbar-width:thin;
     scrollbar-color:rgba(0,240,255,.92) rgba(255,43,214,.14);
   }
+  .article-content .code-block{
+    position:relative;
+    margin:1.05em 0;
+  }
+  .article-content .code-block pre{
+    margin:0;
+  }
+  .article-content .code-copy-btn{
+    position:absolute;
+    top:10px;
+    right:10px;
+    z-index:2;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:72px;
+    padding:7px 12px;
+    border:1px solid rgba(0,240,255,.28);
+    background:rgba(7,7,20,.9);
+    color:var(--ink);
+    box-shadow:0 0 18px rgba(0,240,255,.12);
+    font-family:"Space Grotesk",sans-serif;
+    font-size:.76rem;
+    font-weight:600;
+    line-height:1;
+    cursor:pointer;
+    transition:
+      border-color .18s ease,
+      background .18s ease,
+      color .18s ease,
+      box-shadow .18s ease,
+      transform .18s ease;
+  }
+  .article-content .code-copy-btn:hover{
+    border-color:rgba(0,240,255,.7);
+    background:rgba(0,240,255,.14);
+    box-shadow:0 0 20px rgba(0,240,255,.18);
+    transform:translateY(-1px);
+  }
+  .article-content .code-copy-btn:focus-visible{
+    outline:none;
+    border-color:var(--cyan);
+    box-shadow:
+      0 0 0 1px var(--cyan),
+      0 0 22px rgba(0,240,255,.22);
+  }
+  .article-content .code-copy-btn.is-copied{
+    border-color:rgba(124,252,157,.8);
+    background:rgba(124,252,157,.16);
+    color:var(--green);
+    box-shadow:0 0 24px rgba(124,252,157,.16);
+  }
   .article-content pre::-webkit-scrollbar{
     width:12px;
     height:12px;
@@ -355,6 +407,9 @@
     background:none;
     font-size:.82em;
     line-height:1.62;
+  }
+  .article-content .code-block pre code{
+    padding:52px 18px 18px;
   }
   .article-content blockquote{
     margin:1em 0;
@@ -839,6 +894,61 @@
     await window.blogRuntime.ensureScript('https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js');
   }
 
+  async function copyTextToClipboard(text){
+    if(navigator.clipboard?.writeText){
+      try{
+        await navigator.clipboard.writeText(text);
+        return true;
+      }catch(error){
+      }
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    textarea.style.pointerEvents = 'none';
+    document.body.appendChild(textarea);
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+
+    try{
+      return document.execCommand('copy');
+    }catch(error){
+      return false;
+    }finally{
+      document.body.removeChild(textarea);
+    }
+  }
+
+  function resetCodeCopyButton(button){
+    button.textContent = button.dataset.labelDefault || '复制';
+    button.classList.remove('is-copied');
+  }
+
+  function enhanceCodeBlocks(){
+    const blocks = postContentEl.querySelectorAll('.code-block');
+    blocks.forEach((block) => {
+      const button = block.querySelector('.code-copy-btn');
+      const codeEl = block.querySelector('pre > code');
+      if(!button || !codeEl || button.dataset.bound === 'true'){
+        return;
+      }
+
+      button.dataset.bound = 'true';
+      button.addEventListener('click', async () => {
+        const copied = await copyTextToClipboard(codeEl.textContent || '');
+        window.clearTimeout(button.__copyResetTimer);
+        button.textContent = copied
+          ? (button.dataset.labelSuccess || '已复制')
+          : (button.dataset.labelFailure || '重试');
+        button.classList.toggle('is-copied', copied);
+        button.__copyResetTimer = window.setTimeout(() => resetCodeCopyButton(button), copied ? 1800 : 2200);
+      });
+    });
+  }
+
   async function enhanceArticleContent(){
     const currentHtml = postContentEl.innerHTML;
     await ensureMathRuntime(currentHtml);
@@ -846,6 +956,7 @@
       await whenLibReady(() => typeof window.renderMathInElement === 'function');
       enhanceMath();
     }
+    enhanceCodeBlocks();
     buildToc();
   }
 

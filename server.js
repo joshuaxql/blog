@@ -65,6 +65,7 @@ function normalizeCodeLanguage(lang) {
 
 function renderCodeBlock(text, lang) {
   const normalizedLang = normalizeCodeLanguage(lang);
+  let codeHtml = "";
 
   if (normalizedLang && hljs.getLanguage(normalizedLang)) {
     const highlighted = hljs.highlight(text, {
@@ -72,15 +73,17 @@ function renderCodeBlock(text, lang) {
       ignoreIllegals: true
     }).value;
 
-    return `<pre><code class="hljs language-${escapeHtml(normalizedLang)}">${highlighted}</code></pre>\n`;
+    codeHtml = `<code class="hljs language-${escapeHtml(normalizedLang)}">${highlighted}</code>`;
+  } else {
+    const autoHighlighted = hljs.highlightAuto(text);
+    const languageClass = autoHighlighted.language
+      ? ` language-${escapeHtml(autoHighlighted.language)}`
+      : "";
+
+    codeHtml = `<code class="hljs${languageClass}">${autoHighlighted.value}</code>`;
   }
 
-  const autoHighlighted = hljs.highlightAuto(text);
-  const languageClass = autoHighlighted.language
-    ? ` language-${escapeHtml(autoHighlighted.language)}`
-    : "";
-
-  return `<pre><code class="hljs${languageClass}">${autoHighlighted.value}</code></pre>\n`;
+  return `<div class="code-block"><button class="code-copy-btn" type="button" aria-label="复制代码" data-label-default="复制" data-label-success="已复制" data-label-failure="重试">复制</button><pre>${codeHtml}</pre></div>\n`;
 }
 
 marked.use({
