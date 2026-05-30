@@ -1,0 +1,20 @@
+@font-face {
+  font-family: "LXGW WenKai Mono";
+  src:
+    local("LXGW WenKai Mono"),
+    local("LXGWWenKaiMono-Regular"),
+    url("./LXGWWenKaiMono-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --font-main: "LXGW WenKai Mono", "LXGWWenKaiMono-Regular", monospace;
+}
+
+html,
+body,
+body * {
+  font-family: var(--font-main) !important;
+}
