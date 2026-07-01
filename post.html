@@ -551,6 +551,41 @@
     color:var(--dim);
     background:rgba(13,13,31,.45);
   }
+  .comments{
+    position:relative;z-index:1;
+    max-width:1400px;margin:0 auto;padding:0 32px 80px;
+  }
+  .comments-shell{
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(13,13,31,.68),rgba(7,7,16,.54));
+    padding:24px 26px 10px;
+  }
+  .comments-note{
+    margin:0 0 18px;
+    color:#d2d1ec;
+    font-size:15px;
+    line-height:1.8;
+  }
+  .comments-note a{
+    color:var(--cyan);
+    text-decoration:none;
+  }
+  .comments-note a:hover{color:var(--magenta)}
+  .comments-widget{
+    min-height:220px;
+  }
+  .comments-widget .utterances,
+  .comments-widget iframe.utterances-frame{
+    max-width:100%;
+    width:100%;
+  }
+  .comments-empty{
+    border:1px dashed var(--line);
+    padding:22px;
+    font-family:"JetBrains Mono",monospace;
+    color:var(--dim);
+    background:rgba(13,13,31,.38);
+  }
 
   footer.foot{
     position:relative;z-index:1;border-top:1px solid var(--line);
@@ -577,8 +612,9 @@
     }
   }
   @media (max-width:640px){
-    .topbar-inner,.page-head,.article-shell,.nearby{padding-left:18px;padding-right:18px}
+    .topbar-inner,.page-head,.article-shell,.nearby,.comments{padding-left:18px;padding-right:18px}
     .title-frame,.article-card{padding:22px 20px}
+    .comments-shell{padding:22px 20px 8px}
     .nearby-grid{grid-template-columns:1fr}
     .nav a:nth-child(n+4){display:none}
   }
@@ -596,11 +632,11 @@
       <a href="index.html">joshuaxql<span style="color:var(--dim)">.log</span></a>
     </div>
     <nav class="nav">
-      <a href="index.html">// HOME</a>
-      <a href="blog.html">// ARCHIVE</a>
-      <a href="index.html#about">// ABOUT</a>
-      <a href="index.html#feed">// FEED</a>
-      <a href="index.html#contact">// COMMS</a>
+      <a href="index.html">首页</a>
+      <a href="blog.html">归档</a>
+      <a href="index.html#about">概览</a>
+      <a href="index.html#feed">文章</a>
+      <a href="index.html#contact">联系</a>
     </nav>
     <div class="status">
       <span><span class="pip">▲</span> <span id="time">--:--:--</span> BJT</span>
@@ -670,6 +706,22 @@
   </div>
 </section>
 
+<section class="comments">
+  <div class="section-head">
+    <span class="num">// 004</span>
+    <h2>评论区 <span style="color:var(--dim);font-weight:300">/ github markdown</span></h2>
+    <span class="rule"></span>
+    <span class="tag">utterances</span>
+  </div>
+
+  <div class="comments-shell" data-cursor-frame>
+    <p class="comments-note">使用 GitHub 登录后即可直接用 Markdown 留言。评论会写入仓库对应文章的 Issue，既能在站内看，也能在 GitHub 上继续讨论。</p>
+    <div class="comments-widget" id="comments-widget">
+      <div class="comments-empty">评论组件准备中...</div>
+    </div>
+  </div>
+</section>
+
 <footer class="foot">// © 2026 joshuaxql — reading directly from live markdown ─━─━─━─</footer>
 
 <script src="cursor.js"></script>
@@ -698,8 +750,12 @@
   const articleShellEl = document.querySelector('.article-shell');
   const tocPanelEl = document.querySelector('.toc-panel');
   const topbarEl = document.querySelector('.topbar');
+  const commentsWidgetEl = document.getElementById('comments-widget');
   let activeTocLink = null;
   let tocPanelState = 'normal';
+  let tocHeadings = [];
+  let tocUpdateFrame = 0;
+  let renderedCommentIssueTerm = '';
 
   function escapeHtml(value){
     return String(value).replace(/[&<>"']/g, (char) => ({
@@ -757,6 +813,89 @@
     if(activeTocLink){
       activeTocLink.classList.add('active');
     }
+  }
+
+  function decodeHashId(hashValue){
+    if(!hashValue || hashValue === '#'){
+      return '';
+    }
+
+    try{
+      return decodeURIComponent(hashValue.slice(1));
+    }catch(error){
+      return hashValue.slice(1);
+    }
+  }
+
+  function getHeadingScrollOffset(){
+    return (topbarEl ? topbarEl.offsetHeight : 86) + 22;
+  }
+
+  function findHeadingById(id){
+    return tocHeadings.find((heading) => heading.id === id) || null;
+  }
+
+  function updateActiveTocFromScroll(preferredId){
+    if(!tocHeadings.length){
+      return;
+    }
+
+    if(preferredId){
+      const preferredHeading = findHeadingById(preferredId);
+      if(preferredHeading){
+        setActiveTocLink(preferredHeading.id);
+        return;
+      }
+    }
+
+    const threshold = getHeadingScrollOffset();
+    let currentHeading = tocHeadings[0];
+    let smallestDistance = Number.POSITIVE_INFINITY;
+
+    for(const heading of tocHeadings){
+      const distance = Math.abs(heading.getBoundingClientRect().top - threshold);
+      if(distance < smallestDistance){
+        smallestDistance = distance;
+        currentHeading = heading;
+      }
+    }
+
+    setActiveTocLink(currentHeading.id);
+  }
+
+  function scheduleActiveTocUpdate(preferredId){
+    window.cancelAnimationFrame(tocUpdateFrame);
+    tocUpdateFrame = window.requestAnimationFrame(() => {
+      updateActiveTocFromScroll(preferredId);
+    });
+  }
+
+  function scrollToHeading(id, behavior = 'auto'){
+    const heading = findHeadingById(id);
+    if(!heading){
+      return false;
+    }
+
+    const nextTop = window.scrollY + heading.getBoundingClientRect().top - getHeadingScrollOffset();
+    window.scrollTo({
+      top: Math.max(0, nextTop),
+      behavior
+    });
+    return true;
+  }
+
+  function syncActiveTocWithHash(scrollIntoView = false){
+    const targetId = decodeHashId(window.location.hash);
+    if(!targetId){
+      scheduleActiveTocUpdate();
+      return;
+    }
+
+    if(scrollIntoView){
+      scrollToHeading(targetId);
+    }
+
+    scheduleActiveTocUpdate(targetId);
   }
 
   function setTocPanelState(nextState){
@@ -822,26 +961,14 @@
       };
     });
 
+    tocHeadings = headings;
     renderToc(items);
 
-    if(items[0]){
-      setActiveTocLink(items[0].id);
+    if(!items.length){
+      return;
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      const visibleEntries = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((left, right) => left.boundingClientRect.top - right.boundingClientRect.top);
-
-      if(visibleEntries[0]){
-        setActiveTocLink(visibleEntries[0].target.id);
-      }
-    }, {
-      rootMargin: '-18% 0px -68% 0px',
-      threshold: [0, 1]
-    });
-
-    headings.forEach((heading) => observer.observe(heading));
+    syncActiveTocWithHash(Boolean(window.location.hash));
   }
 
   function enhanceMath(){
@@ -987,6 +1114,37 @@
       : '<div class="nearby-empty" data-cursor-frame>这是当前唯一一篇文章，暂时没有上下篇。</div>';
   }
 
+  function renderComments(post){
+    if(!commentsWidgetEl){
+      return;
+    }
+
+    const commentConfig = window.blogRuntime?.commentConfig;
+    if(!commentConfig?.repo){
+      commentsWidgetEl.innerHTML = '<div class="comments-empty">评论配置缺失，暂时无法载入 GitHub 评论组件。</div>';
+      return;
+    }
+
+    const issueTerm = `${commentConfig.issueTermPrefix || 'post'}:${post.slug}`;
+    if(renderedCommentIssueTerm === issueTerm){
+      return;
+    }
+
+    renderedCommentIssueTerm = issueTerm;
+    commentsWidgetEl.innerHTML = '';
+
+    const script = document.createElement('script');
+    script.src = 'https://utteranc.es/client.js';
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.setAttribute('repo', commentConfig.repo);
+    script.setAttribute('issue-term', issueTerm);
+    script.setAttribute('label', commentConfig.label || 'comment');
+    script.setAttribute('theme', commentConfig.theme || 'github-dark');
+    script.setAttribute('crossorigin', 'anonymous');
+    commentsWidgetEl.appendChild(script);
+  }
+
   async function renderPost(payload){
     const { post, neighbors } = payload;
     document.title = `${post.title} // joshuaxql`;
@@ -1002,6 +1160,7 @@
     postContentEl.innerHTML = post.contentHtml;
     await enhanceArticleContent();
     renderNeighbors(neighbors);
+    renderComments(post);
     syncTocPanelPinning();
   }
 
@@ -1010,6 +1169,11 @@
     document.getElementById('post-summary').textContent = message;
     postContentEl.innerHTML = `<div class="article-empty">${escapeHtml(message)}</div>`;
     tocEl.innerHTML = '<div class="toc-empty">正文未加载，目录不可用。</div>';
+    tocHeadings = [];
+    renderedCommentIssueTerm = '';
+    if(commentsWidgetEl){
+      commentsWidgetEl.innerHTML = '<div class="comments-empty">评论区暂时不可用，请稍后重试。</div>';
+    }
     document.getElementById('nearby-grid').innerHTML = '<div class="nearby-empty" data-cursor-frame>当前无法建立邻近文章索引。</div>';
   }
 
@@ -1034,8 +1198,47 @@
     await renderPost(payload);
   }
 
-  window.addEventListener('scroll', syncTocPanelPinning, { passive: true });
-  window.addEventListener('resize', syncTocPanelPinning);
+  tocEl.addEventListener('click', (event) => {
+    const link = event.target.closest('.toc-link');
+    if(!link){
+      return;
+    }
+
+    const targetId = link.dataset.targetId;
+    const targetHeading = findHeadingById(targetId);
+    if(!targetHeading){
+      return;
+    }
+
+    event.preventDefault();
+    setActiveTocLink(targetId);
+
+    const nextHash = `#${encodeURIComponent(targetId)}`;
+    if(window.location.hash !== nextHash){
+      history.pushState(null, '', nextHash);
+    }else{
+      history.replaceState(null, '', nextHash);
+    }
+    window.dispatchEvent(new Event('hashchange'));
+
+    scrollToHeading(
+      targetId,
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+    );
+    scheduleActiveTocUpdate(targetId);
+  });
+
+  window.addEventListener('hashchange', () => {
+    syncActiveTocWithHash();
+  });
+  window.addEventListener('scroll', () => {
+    syncTocPanelPinning();
+    scheduleActiveTocUpdate();
+  }, { passive: true });
+  window.addEventListener('resize', () => {
+    syncTocPanelPinning();
+    scheduleActiveTocUpdate();
+  });
   syncTocPanelPinning();
 
   loadPost().catch(() => {

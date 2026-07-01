@@ -267,8 +267,22 @@ npm run deploy
 - LaTeX 数学公式
 - 代码高亮
 - 自动目录跳转
+- GitHub Markdown 评论
 - 单篇文章上下篇导航
 - 自定义光标效果
+
+## 启用 GitHub 评论
+
+正文页评论区当前使用 `utterances`，评论数据会写入 GitHub issue。
+
+启用前需要额外完成这一步：
+
+1. 打开 `https://utteranc.es/`
+2. 给仓库 `joshuaxql/blog` 安装 `utterances` GitHub App
+3. 保持仓库公开可访问
+
+当前前端默认配置写在 `site-data.js` 的 `window.blogRuntime.commentConfig` 里。
+如果以后你想换仓库、标签或主题，改那里就可以。
 
 ## 备注
 

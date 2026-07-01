@@ -23,13 +23,6 @@
   }
 
   if (window.top === window.self) {
-    if (!window.__joshuaxqlStandaloneLive2dLoaded) {
-      const moduleScript = document.createElement("script");
-      moduleScript.type = "module";
-      moduleScript.src = new URL("asset/live2d-widget/live2d-init.js", window.location.href).href;
-      document.head.appendChild(moduleScript);
-      window.__joshuaxqlStandaloneLive2dLoaded = true;
-    }
     return;
   }
 

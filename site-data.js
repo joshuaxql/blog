@@ -120,6 +120,13 @@
   }
 
   window.blogRuntime = {
+    commentConfig: {
+      provider: "utterances",
+      repo: "joshuaxql/blog",
+      issueTermPrefix: "post",
+      label: "comment",
+      theme: "github-dark"
+    },
     ensureScript,
     ensureStylesheet,
     loadPostBySlug(slug) {
