@@ -1,0 +1,101 @@
+# 只覆盖需要自定义的选项，其余使用 Butterfly 默认配置。
+nav:
+  fixed: true
+
+menu:
+  首页: / || fas fa-home
+  归档: /archives/ || fas fa-archive
+  标签: /tags/ || fas fa-tags
+  分类: /categories/ || fas fa-folder-open
+  关于: /about/ || fas fa-user
+
+social:
+  fab fa-github: https://github.com/joshuaxql || GitHub
+  fas fa-rss: /atom.xml || RSS 订阅 || '#f59e0b'
+
+favicon: /img/favicon.svg
+avatar:
+  img: /img/avatar.svg
+  effect: false
+
+default_top_img: /img/banner.svg
+index_img: /img/banner.svg
+index_top_img_height: 60vh
+cover:
+  default_cover:
+    - /img/banner.svg
+
+subtitle:
+  enable: true
+  effect: false
+  source: false
+  sub:
+    - 记录技术，分享生活。保持好奇，持续创造。
+
+index_post_content:
+  method: 2
+  length: 180
+
+code_blocks:
+  theme: light
+  macStyle: true
+  copy: true
+  language: true
+
+aside:
+  card_author:
+    description: 记录技术探索、学习笔记与生活点滴。
+    button:
+      enable: true
+      icon: fab fa-github
+      text: GitHub
+      link: https://github.com/joshuaxql
+  card_announcement:
+    enable: true
+    content: 欢迎来到我的博客，一起学习与分享。
+  card_archives:
+    format: YYYY年MM月
+
+footer:
+  owner:
+    enable: true
+    since: 2026
+  copyright:
+    enable: true
+    version: false
+  custom_text: '由 Cloudflare Pages 托管'
+
+darkmode:
+  enable: true
+  button: true
+  autoChangeMode: 1
+
+search:
+  use: local_search
+  placeholder: 搜索文章
+  local_search:
+    preload: false
+
+error_404:
+  enable: true
+  subtitle: 页面不存在，返回首页继续探索吧
+
+busuanzi:
+  site_uv: false
+  site_pv: false
+  page_pv: false
+
+share:
+  use:
+
+structured_data:
+  enable: true
+
+CDN:
+  internal_provider: local
+  third_party_provider: jsdelivr
+  version: true
+
+inject:
+  head:
+    - '<link rel="alternate" type="application/atom+xml" title="Joshua 的博客" href="/atom.xml">'
