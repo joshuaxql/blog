@@ -2,6 +2,7 @@
 title: 从这里开始，记录与分享
 date: 2026-09-29 12:00:00
 updated: 2026-09-29 12:00:00
+sticky: 100
 tags:
   - 博客
   - Hexo
@@ -25,18 +26,6 @@ description: 欢迎来到 Joshua 的博客。用文字记录技术探索、学�
 ## 博客的技术栈
 
 这个博客使用 Hexo 将 Markdown 文章生成为静态页面，Butterfly 提供阅读界面，Cloudflare Pages 负责构建和托管。
-
-写作从一条命令开始：
-
-```bash
-npx hexo new "我的第一篇文章"
-```
-
-编辑 `source/_posts/` 下的 Markdown 文件，然后在本地预览：
-
-```bash
-npm run server
-```
 
 ## 保持好奇，持续创造
 
