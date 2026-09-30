@@ -91,6 +91,14 @@ share:
 structured_data:
   enable: true
 
+# JetBrains Mono 不包含中文字形，中文自动使用霞鹜文楷。
+font:
+  font_family: '"JetBrains Mono", "LXGW WenKai", monospace'
+  code_font_family: '"JetBrains Mono", "LXGW WenKai", monospace'
+
+blog_title_font:
+  font_family: '"JetBrains Mono", "LXGW WenKai", monospace'
+
 CDN:
   internal_provider: local
   third_party_provider: jsdelivr
@@ -99,3 +107,8 @@ CDN:
 inject:
   head:
     - '<link rel="alternate" type="application/atom+xml" title="Joshua 的博客" href="/atom.xml">'
+    - '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.3.0/latin-400.css">'
+    - '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.3.0/latin-700.css">'
+    - '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css">'
+    - '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css">'
+    - '<link rel="stylesheet" href="/css/fonts.css">'

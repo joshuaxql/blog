@@ -1,0 +1,4 @@
+/* 覆盖主题为键盘按键单独指定的字体，不改变 Font Awesome 图标字体。 */
+#article-container kbd {
+  font-family: "JetBrains Mono", "LXGW WenKai", monospace;
+}
