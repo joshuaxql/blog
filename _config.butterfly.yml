@@ -18,12 +18,12 @@ avatar:
   img: /img/avatar.jpg
   effect: false
 
-default_top_img: /img/banner.svg
-index_img: /img/banner.svg
+default_top_img: /img/banner.png
+index_img: /img/banner.png
 index_top_img_height: 60vh
 cover:
   default_cover:
-    - /img/banner.svg
+    - /img/banner.png
 
 subtitle:
   enable: true
